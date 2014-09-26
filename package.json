@@ -1,0 +1,38 @@
+{
+  "author": "SnailJS <developers@snailjs.org>",
+  "name": "infant",
+  "description": "Child process, and worker helper for Node.js",
+  "version": "0.5.0",
+  "homepage": "http://snailjs.org/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snailjs/infant.git"
+  },
+  "main": "app.js",
+  "keywords": [
+    "child process",
+    "cluster",
+    "workers",
+    "fork",
+    "spawn",
+    "process"
+  ],
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "dependencies": {
+    "callsite": "1.0.x",
+    "debug": "2.0.x",
+    "node-sigint": "0.0.x",
+    "object-manage": "0.8.x",
+    "q": "1.0.x"
+  },
+  "scripts": {
+    "test": "node ./node_modules/mocha/bin/mocha"
+  },
+  "devDependencies": {
+    "chai": "1.9.x",
+    "mocha": "1.21.x",
+    "request": "2.44.x"
+  }
+}
