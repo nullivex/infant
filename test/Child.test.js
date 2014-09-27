@@ -4,6 +4,7 @@ var Child = require('../helpers/Child')
 
 
 describe('helpers/Child',function(){
+  this.timeout(10000)
   describe('lifecycle',function(){
     var child
     beforeEach(function(done){

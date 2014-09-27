@@ -6,6 +6,7 @@ var cluster = require('../helpers/Cluster')
 
 
 describe('helpers/Cluster',function(){
+  this.timeout(10000)
   describe('lifecycle',function(){
     var inst
     beforeEach(function(done){
@@ -74,8 +75,6 @@ describe('helpers/Cluster',function(){
         })
       })
       it('should recycle worker after request ceiling',function(done){
-        //increase timeout for this one (since a lot is involved)
-        this.timeout(10000)
         var makeRequest = function(){
           request('http://localhost:3333',function(err,res,body){
             if(err) return done(err)
