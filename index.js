@@ -44,7 +44,21 @@ exports.cluster = require(__dirname + '/helpers/Cluster')
 
 
 /**
+ * Export cluster class too
+ * @type {Cluster}
+ */
+exports.Cluster = exports.cluster.Cluster
+
+
+/**
  * Shortcut for worker setup
  * @type {function}
  */
 exports.worker = exports.cluster.setup
+
+
+/**
+ * Lifecycle helper
+ * @type {Object|*}
+ */
+exports.Lifecycle = require(__dirname + '/helpers/Lifecycle')

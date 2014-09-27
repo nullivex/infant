@@ -4,9 +4,9 @@ Infant [![Build Status](https://travis-ci.org/snailjs/infant.png?branch=master)]
 Infant is a helper package that wraps some of the core node modules that are
 used to provide child process and cluster support.
 
-This package comes with two main helpers **Child** and **Cluster** which provide
-enhanced functionality over the basic functionality that the core packages
-provide.
+This package comes with two main helpers **Child**, **Cluster** and
+**Lifecycle** which provide enhanced functionality over the basic functionality
+that the core packages provide.
 
 Furthermore, Infant fixes some of the inherent problems with graceful startup
 and shutdown that are not supported using the raw node modules.
@@ -192,6 +192,35 @@ var server = http.createServer(req,res){
 worker(server)
 
 server.listen(3000)
+```
+
+### Lifecycle helper
+
+```js
+'use strict';
+var Lifecycle = require('infant').Lifecycle
+var lifecycle = new Lifecycle()
+
+//add a new startup accompanied by a shutdown
+lifecycle.add(
+  function(done){
+    //startup stuff
+    done()
+  },
+  function(done){
+    //shutdown stuff
+    done()
+  }
+)
+
+//start the members of the lifecycle
+lifecycle.start(function(err){
+  if(err) throw err
+  lifecycle.stop(function(err){
+    if(err) throw err
+    //shutdown complete
+  })
+})
 ```
 
 ## API Reference
@@ -383,7 +412,37 @@ are from the previous workers exit
 * `stopping` - Emitted on beginning of cluster shutdown
 * `stopped` - Emitted on completion of cluster shutdown
 
+### Lifecycle
+
+#### Constructor
+
+Takes no arguments, returns a new lifecycle instance
+
+#### Lifecycle.prototype.add(start,stop)
+
+Where start and stop are functions that are passed a `done(err)` callback
+
+#### Lifecycle.prototype.remove(start,stop)
+
+Remove the member from the lifecycle, using the original start and stop
+functions to identify the member.
+
+#### Lifecycle.prototype.start(done)
+
+Will start all the members in the order they were added and call `done(err)`
+when complete.
+
+#### Lifecycle.prototype.stop(done)
+
+Will stop all the members in reverse order that they were added and call
+`done(err)` when complete.
+
 ## Changelog
+
+### 0.6.0
+* Lots of documentation cleanup
+* `require('infant').Cluster` now available for raw class access
+* Added Lifecycle helper for building startup and shutdown sequences
 
 ### 0.5.0
 
