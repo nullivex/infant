@@ -53,7 +53,7 @@ var Cluster = function(module,options){
   this.options.$load(options)
   //when we dont have enhanced mode, we need timeouts on stop
   if(!this.options.enhanced){
-    if(!this.options.stopTimeout) this.options.stopTimeout = 1000
+    if(!this.options.stopTimeout) this.options.stopTimeout = 5000
   }
   //setup worker count based on options or system
   this.count = this.options.count || os.cpus().length
