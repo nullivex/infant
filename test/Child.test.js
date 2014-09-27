@@ -34,7 +34,7 @@ describe('helpers/Child',function(){
           done()
         })
         //issue a kill so it will respawn
-        child.cp.kill()
+        child.cp.kill('SIGKILL')
       })
     })
     it('should gracefully not send messages to children',function(done){
@@ -100,7 +100,7 @@ describe('helpers/Child',function(){
             })
           })
         })
-        child.kill()
+        child.kill('SIGKILL')
       })
     })
     it('should be stopping',function(done){
@@ -163,7 +163,7 @@ describe('helpers/Child',function(){
         expect(pid).to.be.a('number')
         done()
       })
-      child.kill()
+      child.kill('SIGKILL')
     })
     it('should error',function(done){
       child.send('error')

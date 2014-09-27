@@ -225,12 +225,13 @@ Child.prototype.stop = function(timeout,done){
 
 /**
  * Kill the child
+ * @param {string} signal
  * @return {bool}
  */
-Child.prototype.kill = function(){
+Child.prototype.kill = function(signal){
   if(this.cp && this.cp.connected){
     this.debug('sent kill')
-    this.cp.kill()
+    this.cp.kill(signal || 'SIGTERM')
     return true
   }
   return false
