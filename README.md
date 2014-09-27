@@ -1,4 +1,7 @@
-# Infant
+Infant [![Build Status](https://travis-ci.org/snailjs/infant.png?branch=master)](https://travis-ci.org/snailjs/infant)
+============
+
+(https://travis-ci.org/snailjs/infant.svg?branch=master)
 
 Infant is a helper package that wraps some of the core node modules that are
 used to provide child process and cluster support.
