@@ -8,17 +8,23 @@ This package comes with two main helpers **Child** and **Cluster** which provide
 enhanced functionality over the basic functionality that the core packages
 provide.
 
-Furthermore, Infant fixes some of the inherit problems with graceful startups
-and shutdowns that are introduced using the raw node modules.
+Furthermore, Infant fixes some of the inherent problems with graceful startup
+and shutdown that are not supported using the raw node modules.
 
 Finally, Infant can be used as a drop in replacement for `child_process` and
 for `cluster`. Additionally there are simple helpers included to enhance
-children to communicate with the master and provide in features such as:
+children to communicate with the master and provide features such as:
 
 * **Graceful Startup**
 * **Graceful Shutdown**
 * **Automatic Respawn**
 * **Worker Recycling**
+
+As this module relies heavily and mainly extends the core node modules. It
+is imperative to get familiar with these documents as well
+
+* [Child process](http://nodejs.org/api/child_process.html)
+* [Cluster](http://nodejs.org/api/cluster.html)
 
 ## Usage
 
@@ -194,20 +200,22 @@ server.listen(3000)
 
 #### Constructor
 
-* module - Takes an argument similar to require
-* options - Object of options
- * respawn - (boolean) defaults to true (restart the process on exit)
+* `module` - Takes an argument similar to require
+* `options` - Optional bject of options
+
+**Options**
+* `respawn` - (boolean) defaults to true (restart the process on exit)
 
 #### Child.prototype.status()
 
 This function takes no arguments and returns the current status
 
 **Status definitions**
-* dead - Nothing running
-* starting - Startup procedures
-* stopping - Shutdown procedures
-* ready - Process is ready to start
-* ok - Process is running
+* `dead` - Nothing running, not configured
+* `starting` - Startup in progress
+* `stopping` - Shutdown in progress
+* `ready` - Process is ready to start
+* `ok` - Process is running
 
 #### Child.prototype.start(cb)
 
@@ -221,28 +229,30 @@ which will shutdown the process without a kill timeout.
 
 If timeout is omitted the process has an unlimited amount of time to shutdown.
 
-#### Child.prototype.kill()
+#### Child.prototype.kill(signal)
 
-This function is sync and forecfully kills the child with no shutdown operations.
+This function is sync and forcefully kills the child. (`SIGTERM` by default)
 
 This is also called automatically on any running process during
-`process.on('exit')`
+`process.on('exit')` with `SIGKILL`
 
 #### Child.prototype.send(msg)
 
-Send the child a message through the IPC. Takes any data type for msg
-that can be serialized and passed to the child. The child receives the messagew
-through the `process.on('message')` event.
+Send the child a message through the IPC.
+
+Takes any data type for msg that can be serialized and passed to the child.
+
+The child receives the message through the `process.on('message')` event.
 
 #### Child.fork(module,options,cb)
 
 This static function will execute a child that dies on completion of execution.
 It is considered a one time child.
 
-* module - file name to use (similar to require('x'))
-* options - optional object of options
+* `module` - file name to use (similar to require('x'))
+* `options` - optional object of options
 (Takes the same options as the constructor)
-* cb - callback that is called when the child has completed `cb(err)`
+* `cb` - Called on completion with optional error `cb(err)`
 
 #### Child.parent(module,options)
 
@@ -251,31 +261,31 @@ Shortcut for the main constructor
 #### Child.child(title,start,stop)
 
 This is a wrapper function for children to setup IPC communication for
-graceful startup and shutdown.
+graceful startup and shutdown. Use this only in the child.
 
-* title - String that defines the process title
-* start - Function that is called with a single parameter `done` which is a
-callback that should be fired when started is complete, can be passed an error
-as the only argument
-* stop - Same as the start function, only used for shutdown.
+* `title` - String that defines the process title
+* `start` - Function that is called with a single parameter `done` which is a
+callback that should be fired when startup is complete, can be passed an 
+optional error as the only argument `done(err)`
+* `stop` - Same as the start function, only used for shutdown.
 
 #### Child.childOnce(title,exec)
 
-This wrapper is similar to `Child.child` but is used to run processed that
-run and exit (childOnce)
+This wrapper is similar to `Child.child` but is used to run process that
+runs and exits immediately (childOnce)
 
-* title - String that defines the process title
-* exec - Same as the `start` function in `Child.child`
+* `title` - String that defines the process title
+* `exec` - Same as the `start` function in `Child.child`
 
 #### Child Events
 
-* status - emitted when the status changes, args: `status` the new status
-* exit - emitted when the child exits, args: `code` the exit code of the child
-* close - emitted when the child closes
-* error - emitted during an error, args: `err` the error
-* respawn - emitted when the process respawns, args: `pid` the pid of the
+* `status` - emitted when the status changes, args: `status` the new status
+* `exit` - emitted when the child exits, args: `code` the exit code of the child
+* `close` - emitted when the child closes
+* `error` - emitted during an error, args: `err` the error
+* `respawn` - emitted when the process respawns, args: `pid` the pid of the
 new process
-* message - emitted when the child process sends a message, args: `msg` the
+* `message` - emitted when the child process sends a message, args: `msg` the
 message sent by the child
 
 ### Cluster
@@ -284,38 +294,38 @@ message sent by the child
 
 The constructor only arms the instance, it should also be noted that this
 class must be a singleton since a master can only maintain a single instance
-of the cluster module.
+of the `cluster` module.
 
 That is why it is not exposed as the default operator, use
 `require('infant').cluster` instead which takes the same parameters as this
 constructor.
 
-* module - File name to execute for workers (same as require('x'))
+* `module` - File name to execute for workers (same as require('x'))
 defaults to `process.argv[1]`
-* options - optional bbject of options defined below
+* `options` - optional bbject of options defined below
 
 **Options**
-* enhanced - (boolean) default false, enable enhanced worker mode
-* count - (number) number of workers to start, defaults to `os.cpus().length`
-* maxConnections - (number) only available in enhanced mode, but will cause
+* `enhanced` - (boolean) default false, enable enhanced worker mode
+* `count` - (number) number of workers to start, defaults to `os.cpus().length`
+* `maxConnections` - (number) only available in enhanced mode, but will cause
 a worker to be shutdown and a new one started (recycled) when the worker
 achieves maxConnections.
-* stopTimeout - (number) Timeout in `ms` to wait for workers to stop, defaults
+* `stopTimeout` - (number) Timeout in `ms` to wait for workers to stop, defaults
 to no timeout when in enhanced mode, however it defaults to `5000` in normal
 mode.
-* recycleTimeout - (number) Timeout in `ms` to wait for a worker to stop when
+* `recycleTimeou`t - (number) Timeout in `ms` to wait for a worker to stop when
 it is being recycled, similar to stopTimeout, defaults to `5000` and must be 
 defined
-* execArgv - (array) passed through to `cluster.setupMaster()` see the node
+* `execArgv` - (array) passed through to `cluster.setupMaster()` see the node
 documentation
-* silent - (boolean) passed through to `cluster.setupMaster()` see the node
+* `silent` - (boolean) passed through to `cluster.setupMaster()` see the node
 documentation
-* args - (array) passed through to `cluster.setupMaster()` see the node
+* `args` - (array) passed through to `cluster.setupMaster()` see the node
 documentation
 
 #### Cluster.prototype.each(cb)
 
-Execute a callback on each worker that are currently running.
+Execute a callback on each worker that is currently running.
 
 * cb - This callback is executed `cb(worker)`
 
@@ -325,7 +335,7 @@ Send each worker in the cluster the msg defined as `msg`
 
 #### Cluster.prototype.fork()
 
-Start a new worker which will be bootstraped with advanced features in
+Start a new worker which will be boot strapped with advanced features in
 enhanced mode
 
 #### Cluster.prototype.setupWorker(worker)
@@ -337,29 +347,41 @@ workers such as recycling.
 
 Start the cluster and call `cb(err)` when the cluster is online.
 
-
-#### Cluster.prototype.respawn(worker,code,signal)
-
-This is an internal function used to respawn workers on exit
-
 #### Cluster.prototype.stop(db)
 
-Stop the cluster and call `cb(err)` when the cluster if offline.
-
-#### Cluster.prototype.kill(signal)
-
-Kill all the workers with the given `signal` defaults to `SIGTERM`
+Stop the cluster and call `cb(err)` when the cluster is offline.
 
 #### Cluster.prototype.restart(cb)
 
 Restart the cluster and call `cb(err)` when complete.
 
+#### Cluster.prototype.respawn(worker,code,signal)
+
+This is an internal function used to respawn workers on unexpected exit
+
+#### Cluster.prototype.kill(signal)
+
+Kill all the workers with the given `signal` defaults to `SIGTERM`
+
 #### Cluster.setup(server)
 
-Take an instance of the node HTTP server and wire to use enhanched features
+Take an instance of the node HTTP server and wire to use enhanced features
 with the master, this should only be called in the child.
 
-It is aliased as `require('infant').worker`
+It is alias as `require('infant').worker`
+
+### Cluster Events
+
+* `online` - Emitted any time a new worker comes online, args: `worker`
+* `recycle` - Emitted when a worker is recycled, args: `worker`,
+`connectionCount`
+* `started` - Emitted on cluster start
+* `exit` - Emitted any time a worker exits, args: `worker`, `code`, `signal`
+* `respawn` - Emitted when a worker respawns, args: `worker, `code, `signal`
+it should be noted that `worker` is the new worker, while `code` and `signal`
+are from the previous workers exit
+* `stopping` - Emitted on beginning of cluster shutdown
+* `stopped` - Emitted on completion of cluster shutdown
 
 ## Changelog
 
