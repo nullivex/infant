@@ -201,8 +201,24 @@ server.listen(3000)
 var Lifecycle = require('infant').Lifecycle
 var lifecycle = new Lifecycle()
 
+//hook some events for logging
+lifecycle.on('start',function(item){
+  console.log('Starting ' + item.title)
+})
+lifecycle.on('stop',function(item){
+  console.log('Stopping ' + item.title)
+})
+lifecycle.on('online',function(){
+  console.log('Startup complete')
+})
+lifecycle.on('offline',function(){
+  console.log('Shutdown complete')
+})
+
+
 //add a new startup accompanied by a shutdown
 lifecycle.add(
+  'step 1',
   function(done){
     //startup stuff
     done()
