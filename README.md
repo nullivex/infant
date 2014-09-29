@@ -450,6 +450,7 @@ Will stop all the members in reverse order that they were added and call
 
 ### 0.7.0
 * Improved worker setup helper to include graceful startup and shutdown
+* Child.fork now supports timeouts on runOnce processes
 
 ### 0.6.0
 * Lots of documentation cleanup
