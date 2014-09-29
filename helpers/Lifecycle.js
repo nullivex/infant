@@ -1,5 +1,8 @@
 'use strict';
 var async = require('async')
+var EventEmitter = require('events').EventEmitter
+
+var nullFunc = function(done){done()}
 
 
 
@@ -11,32 +14,62 @@ var async = require('async')
  * @constructor
  */
 var Lifecycle = function(){
-  this._start = []
-  this._stop = []
+  EventEmitter.call(this)
+  this.items = []
+}
+Lifecycle.prototype = Object.create(EventEmitter.prototype)
+
+
+/**
+ * Get the next index
+ * @return {Number}
+ */
+Lifecycle.prototype.nextIndex = function(){
+  return this.items.length
 }
 
 
 /**
  * Add a new sequence
+ * @param {string} title
  * @param {function} start
  * @param {function} stop
+ * @return {object} item
  */
-Lifecycle.prototype.add = function(start,stop){
-  if(start && 'function' === typeof start) this._start.push(start)
-  if(stop && 'function' === typeof stop) this._stop.unshift(stop)
+Lifecycle.prototype.add = function(title,start,stop){
+  if('function' === typeof title){
+    start = title
+    stop = start
+    title = this.nextIndex()
+  }
+  var item = {
+    index: this.nextIndex(),
+    title: title,
+    start: start || nullFunc,
+    stop: stop || nullFunc
+  }
+  this.emit('add',item)
+  this.items.push(item)
+  return item
 }
 
 
 /**
  * Remove a sequence from the stack
- * @param {function} start
- * @param {function} stop
+ * @param {string} title
+ * @return {object} item
  */
-Lifecycle.prototype.remove = function(start,stop){
-  if(start && 'function' === typeof start)
-    this._start.splice(this._start.indexOf(start),1)
-  if(stop && 'function' === typeof stop)
-    this._stop.splice(this._start.indexOf(stop),1)
+Lifecycle.prototype.remove = function(title){
+  var that = this
+  var item = null
+  //remove the item
+  that.items.forEach(function(v,i){
+    if(title === v.title){
+      item = that.items.splice(i,1)[0]
+      that.emit('remove',item)
+    }
+  })
+  return item
 }
 
 
@@ -45,10 +78,21 @@ Lifecycle.prototype.remove = function(start,stop){
  * @param {function} done
  */
 Lifecycle.prototype.start = function(done){
+  var that = this
+  //sort into start order
+  that.items = that.items.sort(function(a,b){return a.index - b.index})
+  //start items
   async.eachSeries(
-    this._start,
-    function(item,next){item(next)},
-    done
+    that.items,
+    function(item,next){
+      that.emit('start',item)
+      item.start(next)
+    },
+    function(err){
+      if(err) return done(err)
+      that.emit('online')
+      done()
+    }
   )
 }
 
@@ -58,10 +102,21 @@ Lifecycle.prototype.start = function(done){
  * @param {function} done
  */
 Lifecycle.prototype.stop = function(done){
+  var that = this
+  //sort into stop order
+  that.items = that.items.sort(function(a,b){return b.index - a.index})
+  //stop items
   async.eachSeries(
-    this._stop,
-    function(item,next){item(next)},
-    done
+    that.items,
+    function(item,next){
+      that.emit('stop',item)
+      item.stop(next)
+    },
+    function(err){
+      if(err) return done(err)
+      that.emit('offline')
+      done()
+    }
   )
 }
 

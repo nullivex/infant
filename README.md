@@ -431,14 +431,15 @@ are from the previous workers exit
 
 Takes no arguments, returns a new lifecycle instance
 
-#### Lifecycle.prototype.add(start,stop)
+#### Lifecycle.prototype.add(title,start,stop)
+
+Title is a string that will be provided during events
 
 Where start and stop are functions that are passed a `done(err)` callback
 
-#### Lifecycle.prototype.remove(start,stop)
+#### Lifecycle.prototype.remove(title)
 
-Remove the member from the lifecycle, using the original start and stop
-functions to identify the member.
+Remove the member from the lifecycle, using the title to identify the member
 
 #### Lifecycle.prototype.start(done)
 
@@ -450,7 +451,27 @@ when complete.
 Will stop all the members in reverse order that they were added and call
 `done(err)` when complete.
 
+#### Lifecycle Events
+
+* `add` - Emitted when a member is added, args: `item` the item being
+added
+* `remove` - Emitted when a member is removed, args: `item` the item being
+removed
+* `start` - Emitted when a member is started, args: `item` the item being
+started
+* `stop` - Emitted when a member is stopped, args: `item` the item being
+stopped
+* `online` - Emitted when the startup sequence is complete
+* `offline` - Emitted when the shutdown sequence is complete
+
 ## Changelog
+
+### 0.8.0
+* Lifecycle helper now takes an optional name
+* Lifecycle helper is now an event emitter (useful for loggin)
+* Added tests against the Lifecycle helper
+* There is a breaking change to the lifecycle helper, where removals require
+the title to be specified
 
 ### 0.7.0
 * Improved worker setup helper to include graceful startup and shutdown
