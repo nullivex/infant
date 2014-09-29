@@ -466,6 +466,9 @@ stopped
 
 ## Changelog
 
+### 0.8.1
+* Lifecycle will only call items with registered start or shutdown handlers
+
 ### 0.8.0
 * Lifecycle helper now takes an optional name
 * Lifecycle helper is now an event emitter (useful for loggin)

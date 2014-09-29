@@ -88,7 +88,7 @@ describe('helpers/Lifecycle',function(){
     })
   })
   it('should emit a start event',function(done){
-    inst.add('test1')
+    inst.add('test1',function(next){next()})
     inst.once('start',function(item){
       expect(item.title).to.equal('test1')
       done()
@@ -96,7 +96,7 @@ describe('helpers/Lifecycle',function(){
     inst.start(function(err){if(err) done(err)})
   })
   it('should emit a stop event',function(done){
-    inst.add('test1')
+    inst.add('test1',null,function(next){next()})
     inst.once('stop',function(item){
       expect(item.title).to.equal('test1')
       done()
@@ -131,5 +131,19 @@ describe('helpers/Lifecycle',function(){
     })
     inst.add('test1')
     inst.remove('test1')
+  })
+  it('should not start items without start functions',function(done){
+    inst.add('dont start',null,function(next){next()})
+    inst.once('start',function(){
+      done('should not have started')
+    })
+    inst.start(done)
+  })
+  it('should not stop items without stop functions',function(done){
+    inst.add('dont stop',function(next){next()})
+    inst.once('stop',function(){
+      done('should not have stopped')
+    })
+    inst.stop(done)
   })
 })

@@ -2,8 +2,6 @@
 var async = require('async')
 var EventEmitter = require('events').EventEmitter
 
-var nullFunc = function(done){done()}
-
 
 
 /**
@@ -45,8 +43,8 @@ Lifecycle.prototype.add = function(title,start,stop){
   var item = {
     index: this.nextIndex(),
     title: title,
-    start: start || nullFunc,
-    stop: stop || nullFunc
+    start: start,
+    stop: stop
   }
   this.emit('add',item)
   this.items.push(item)
@@ -85,6 +83,7 @@ Lifecycle.prototype.start = function(done){
   async.eachSeries(
     that.items,
     function(item,next){
+      if('function' !== typeof item.start) return next()
       that.emit('start',item)
       item.start(next)
     },
@@ -109,6 +108,7 @@ Lifecycle.prototype.stop = function(done){
   async.eachSeries(
     that.items,
     function(item,next){
+      if('function' !== typeof item.stop) return next()
       that.emit('stop',item)
       item.stop(next)
     },
