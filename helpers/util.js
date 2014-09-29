@@ -1,5 +1,6 @@
 'use strict';
 var callsite = require('callsite')
+var debug = require('debug')('infant')
 var path = require('path')
 
 
@@ -19,4 +20,23 @@ exports.resolveFile = function(file,level){
     )
   }
   return file
+}
+
+
+/**
+ * Setup a debugger prefixed with the pid
+ * @param {String|number} prefix
+ * @param {debug} inst Debugger instance to call
+ * @return {function}
+ */
+exports.prefixDebug = function(prefix,inst){
+  inst = inst || debug
+  return function(){
+    var args = [prefix]
+    for(var i in arguments){
+      if(!arguments.hasOwnProperty(i)) continue
+      args.push(arguments[i])
+    }
+    inst.apply(null,args)
+  }
 }

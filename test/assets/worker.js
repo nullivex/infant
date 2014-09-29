@@ -7,12 +7,19 @@ var server = http.createServer(function(req,res){
   res.end('foo')
 })
 
-//bootstrap to talk to master
-setup(server)
-
-//start listening
-server.listen(3333,function(err){
-  if(err) throw err
-})
-
+if(require.main === module){
+  setup(
+    server,
+    'worker',
+    function(done){
+      server.listen(3333,function(err){
+        done(err)
+      })
+    },
+    function(done){
+      server.close()
+      done()
+    }
+  )
+}
 

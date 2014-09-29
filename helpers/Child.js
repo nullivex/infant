@@ -19,25 +19,6 @@ process.on('exit',function(){
 })
 
 
-/**
- * Setup a debugger prefixed with the pid
- * @param {String|number} pid
- * @param {debug} inst Debugger instance to call
- * @return {function}
- */
-var pidDebug = function(pid,inst){
-  inst = inst || debug
-  return function(){
-    var args = [pid]
-    for(var i in arguments){
-      if(!arguments.hasOwnProperty(i)) continue
-      args.push(arguments[i])
-    }
-    inst.apply(null,args)
-  }
-}
-
-
 
 /**
  * Fork a child process and call done when it exits
@@ -54,7 +35,7 @@ var Child = function(module,options){
   that.options.$load(options || {})
   that.options.module = module
   //setup an early debug
-  that.debug = pidDebug(module)
+  that.debug = util.prefixDebug(module,debug)
   //module to be ran
   that.module = module
   //handle for child
@@ -125,7 +106,7 @@ Child.prototype.start = function(done){
   that.cp = childProcess.fork(that.module)
   that.pid = that.cp.pid
   //now that we have a pid, relabel the debugger
-  that.debug = pidDebug(that.pid)
+  that.debug = util.prefixDebug(that.pid,debug)
   that.debug(
     'Spawned process with pid of ' + that.cp.pid + ' to execute ' + that.module)
   //store the exitCode if we get it, and pass the event upwards
@@ -215,7 +196,7 @@ Child.prototype.stop = function(timeout,done){
   that.cp.once('close',function(){
     that.status('ready')
     //restore early debugger until we start again
-    that.debug = pidDebug(that.options.module)
+    that.debug = util.prefixDebug(that.options.module,debug)
     that.running = false
     done(that.exitCode ?
       that.module + ' failed with code: ' + that.exitCode : null)
@@ -293,7 +274,10 @@ Child.parent = function(module,options){
  * @param {function} stop
  */
 Child.child = function(title,start,stop){
-  var debug = pidDebug(process.pid,require('debug')('oose:child:process'))
+  var debug = util.prefixDebug(
+    process.pid,
+    require('debug')('oose:child:process')
+  )
   var doStop = function(){
     stop(function(err){
       if(err){
@@ -359,7 +343,10 @@ Child.child = function(title,start,stop){
  * @param {function} exec
  */
 Child.childOnce = function(title,exec){
-  var debug = pidDebug(process.pid,require('debug')('oose:childOnce:process'))
+  var debug = util.prefixDebug(
+    process.pid,
+    require('debug')('oose:childOnce:process')
+  )
   debug('setting process title',title)
   process.title = title
   process.on('SIGTERM',function(){

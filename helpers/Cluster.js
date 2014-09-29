@@ -124,8 +124,8 @@ Cluster.prototype.setupWorker = function(worker){
   //in enhanced mode we wait for the worker to tell us its online
   if(that.options.enhanced){
     worker.on('message',function(msg){
-      if('started' !== msg) return
-      that.emit('online',worker)
+      if('started' === msg.status)
+        that.emit('online',worker)
     })
   } else {
     that.emit('online',worker)
@@ -171,17 +171,24 @@ Cluster.prototype.setupWorker = function(worker){
  */
 Cluster.prototype.start = function(done){
   var that = this
+  that.running = false
   var online = 0
   //handler initial workers coming online
   var workerStart = function(worker){
     debug('Worker ' + worker.id + ' online')
     //in enhanced mode we wait for the worker to confirm its started
     if(that.options.enhanced){
-      worker.on('message',function(msg){
-        if('started' !== msg) return
-        online++
-        if(online >= that.count && !that.running){
-          deferred.resolve()
+      worker.once('message',function(msg){
+        debug('got message from ' + worker.id,msg)
+        if('started' === msg.status){
+          debug('Worker ' + worker.id + ' started')
+          online++
+          if(online >= that.count && !that.running){
+            deferred.resolve()
+          }
+        } else {
+          if('error' === msg.status)
+            deferred.reject(msg.message)
         }
       })
     }
@@ -227,7 +234,7 @@ Cluster.prototype.respawn = function(worker,code,signal){
   //remove the counter
   delete that.counters[worker.id]
   that.emit('exit',worker,code,signal)
-  if(false === worker.suicide && !that.stopping){
+  if(false === worker.suicide && !that.stopping && that.running){
     debug('Worker ' + worker.id + ' died (' + (signal || code) + ') restarting')
     that.cluster.once('online',function(worker){
       debug('Worker ' + worker.id + ' is now online')
@@ -262,12 +269,20 @@ Cluster.prototype.stop = function(done){
       that.running = false
       done()
     },
-    function(err){
-      done(err)
-    }
+    done
   )
   //tell all the workers to stop
   if(that.options.enhanced) that.send('stop')
+  //register a handler for graceful worker exit
+  var workerStop = function(msg){
+    //handle shutdown errors
+    if(msg && 'error' === msg.status){
+      deferred.reject(msg.message)
+    }
+  }
+  that.each(function(worker){
+    worker.on('message',workerStop)
+  })
   //wait for the workers to all die
   var wait = function(){
     if(!that.cluster.workers) deferred.resolve()
@@ -275,6 +290,12 @@ Cluster.prototype.stop = function(done){
     if(online > 0)
       debug('Waiting on ' + online + ' workers to exit')
     if(0 === online){
+      //cleanup listeners
+      that.each(function(worker){
+        worker.removeAllListeners('message')
+        worker.removeAllListeners('online')
+        worker.removeAllListeners('exit')
+      })
       debug('Cluster has stopped')
       deferred.resolve()
     }
@@ -345,23 +366,72 @@ module.exports.Cluster = Cluster
 /**
  * Setup a worker to communicate with master
  * @param {http} server
+ * @param {string} title
+ * @param {function} start
+ * @param {function} stop
  */
-module.exports.setup = function(server){
+module.exports.setup = function(server,title,start,stop){
+  var debug = util.prefixDebug(
+    process.pid,
+    require('debug')('oose:worker:process')
+  )
+  var doStop = function(){
+    stop(function(err){
+      if(err){
+        debug('stop failed',err)
+        if(process.send) process.send({status: 'error', message: err})
+        process.exit(1)
+        return
+      }
+      debug('stop complete')
+      process.exit()
+    })
+  }
+  debug('setting process title',title)
+  process.title = title
+  //if we are running as a child, setup handlers
+  if(process.send){
+    process.on('SIGTERM',function(){
+      debug('ignored SIGTERM')
+    })
+    process.on('SIGINT',function(){
+      debug('ignored SIGINT')
+    })
+    process.on('SIGHUP',function(){
+      debug('got SIGHUP, gracefully exiting')
+      doStop()
+    })
+  } else {
+    //for single process handling
+    require('node-sigint')
+    process.on('SIGTERM',function(){
+      debug('got SIGTERM')
+      doStop()
+    })
+    process.on('SIGINT',function(){
+      debug('got SIGINT')
+      doStop()
+    })
+  }
   process.on('message',function(msg){
-    if('stop' !== msg) return
-    if(!server || !server._handle){
-      process.exit(0)
+    debug('got message',msg)
+    if('stop' === msg){
+      debug('got stop, shutting down')
+      doStop()
+    }
+  })
+  debug('executing start')
+  start(function(err){
+    if(err){
+      debug('start failed',err)
+      if(process.send) process.send({status: 'error',message: err})
+      process.exit(1)
       return
     }
-    server.close(function(err){
-      if(err) console.error('Failed to stop server: ' + err)
-      process.exit(err ? 1 :0)
+    debug('start finished')
+    if(process.send) process.send({status: 'started'})
+    server.on('request',function(){
+      process.send('request')
     })
-  })
-  server.on('listening',function(){
-    process.send('started')
-  })
-  server.on('request',function(){
-    process.send('request')
   })
 }

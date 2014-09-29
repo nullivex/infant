@@ -392,10 +392,17 @@ This is an internal function used to respawn workers on unexpected exit
 
 Kill all the workers with the given `signal` defaults to `SIGTERM`
 
-#### Cluster.setup(server)
+#### Cluster.setup(server,title,start,stop)
+
+* `server` - (HTTP) Instance of HTTP server to be extended
+* `title` - (string) Process title
+* `start` - (function) startup function passed `done(err)`
+* `stop` - (function) shutdown function passed `done(err)`
 
 Take an instance of the node HTTP server and wire to use enhanced features
 with the master, this should only be called in the child.
+
+Also implements graceful startup and shutdown.
 
 It is alias as `require('infant').worker`
 
@@ -438,6 +445,9 @@ Will stop all the members in reverse order that they were added and call
 `done(err)` when complete.
 
 ## Changelog
+
+### 0.7.0
+* Improved worker setup helper to include graceful startup and shutdown
 
 ### 0.6.0
 * Lots of documentation cleanup

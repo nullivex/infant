@@ -10,7 +10,7 @@ describe('helpers/Cluster',function(){
   describe('lifecycle',function(){
     var inst
     beforeEach(function(done){
-      inst = cluster('./assets/worker',{count: 1})
+      inst = cluster('./assets/worker',{count: 1, stopTimeout: 100})
       done()
     })
     afterEach(function(done){
@@ -74,6 +74,15 @@ describe('helpers/Cluster',function(){
           recycleTimeout: null
         })
       })
+      it('should startup and shutdown gracefully',function(done){
+        inst.start(function(err){
+          if(err) return done(err)
+          inst.stop(function(err){
+            if(err) return done(err)
+            done()
+          })
+        })
+      })
       it('should recycle worker after request ceiling',function(done){
         var makeRequest = function(){
           request('http://localhost:3333',function(err,res,body){
@@ -94,6 +103,7 @@ describe('helpers/Cluster',function(){
           for(var i = 0; i<11; i++) makeRequest()
         })
       })
+
     })
   })
 })
