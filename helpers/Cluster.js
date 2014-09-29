@@ -431,7 +431,7 @@ module.exports.setup = function(server,title,start,stop){
     debug('start finished')
     if(process.send) process.send({status: 'started'})
     server.on('request',function(){
-      process.send('request')
+      if(process.send) process.send('request')
     })
   })
 }
