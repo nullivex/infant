@@ -285,6 +285,10 @@ It is considered a one time child.
 (default: `null`)
 * `cb` - Called on completion with optional error `cb(err)`
 
+**NOTE** If the callback is omitted the process will not be started and timeout
+functionality will not be implemented. The instance of the Child object
+is returned to be augmented manually.
+
 #### Child.parent(module,options)
 
 Shortcut for the main constructor

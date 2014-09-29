@@ -240,6 +240,7 @@ Child.prototype.send = function(msg,socket){
  * @param {string} module
  * @param {object} options
  * @param {function} done
+ * @return {Child}
  */
 Child.fork = function(module,options,done){
   if('function' === typeof options){
@@ -248,17 +249,21 @@ Child.fork = function(module,options,done){
   }
   if(!options.respawn) options.respawn = false
   var cp = new Child(util.resolveFile(module,2),options)
-  cp.on('close',function(){
-    if(cp.startupError) return done(cp.startupError)
-    done()
-  })
-  if(options.timeout){
-    setTimeout(function(){
-      cp.kill('SIGKILL')
-      done('Process timeout reached, killed')
-    },options.timeout)
+  if('function' === typeof done){
+    cp.on('close',function(){
+      if(cp.startupError) return done(cp.startupError)
+      done()
+    })
+    if(options.timeout){
+      setTimeout(function(){
+        cp.removeAllListeners('close')
+        cp.kill('SIGKILL')
+        done('Process timeout reached, killed')
+      },options.timeout)
+    }
+    cp.start(function(){})
   }
-  cp.start(function(){})
+  return cp
 }
 
 
