@@ -59,7 +59,6 @@ describe('helpers/Child',function(){
     })
     it('should run once and be killed with a timeout',function(done){
       Child.fork('./assets/childOnceForever',{timeout: 500},function(err){
-        console.log(err)
         expect(err).to.equal('Process timeout reached, killed')
         done()
       })
