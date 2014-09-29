@@ -252,6 +252,12 @@ Child.fork = function(module,options,done){
     if(cp.startupError) return done(cp.startupError)
     done()
   })
+  if(options.timeout){
+    setTimeout(function(){
+      cp.kill('SIGKILL')
+      done('Process timeout reached, killed')
+    },options.timeout)
+  }
   cp.start(function(){})
 }
 

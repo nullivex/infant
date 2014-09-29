@@ -278,9 +278,11 @@ The child receives the message through the `process.on('message')` event.
 This static function will execute a child that dies on completion of execution.
 It is considered a one time child.
 
-* `module` - file name to use (similar to require('x'))
-* `options` - optional object of options
-(Takes the same options as the constructor)
+* `module` - (string) file name to use (similar to require('x'))
+* `options` - (object) optional object of options
+ * `respawn` - (boolean) respawn a failed process (default: `true`)
+ * `timeout` - (number) kill the process after specified timeout
+(default: `null`)
 * `cb` - Called on completion with optional error `cb(err)`
 
 #### Child.parent(module,options)

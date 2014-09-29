@@ -52,9 +52,15 @@ describe('helpers/Child',function(){
     })
   })
   describe('one time',function(){
-    it('run once and quit',function(done){
+    it('should run once and quit',function(done){
       Child.fork('./assets/childOnce',function(err){
         done(err)
+      })
+    })
+    it.only('should run once and be killed with a timeout',function(done){
+      Child.fork('./assets/childOnceForever',{timeout: 500},function(err){
+        expect(err).to.equal('Process timeout reached, killed')
+        done()
       })
     })
   })
