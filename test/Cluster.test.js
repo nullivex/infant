@@ -32,7 +32,7 @@ describe('helpers/Cluster',function(){
         })
       })
     })
-    it.only('should restart',function(done){
+    it('should restart',function(done){
       inst.start(function(err){
         if(err) return done(err)
         inst.restart(function(err){
