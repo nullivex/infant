@@ -3,8 +3,9 @@ var childProcess = require('child_process')
 var debug = require('debug')('infant:Child')
 var EventEmitter = require('events').EventEmitter
 var ObjectManage = require('object-manage')
+var util = require('util')
 
-var util = require('./util')
+var infantUtil = require('./util')
 
 var children = []
 
@@ -35,7 +36,7 @@ var Child = function(module,options){
   that.options.$load(options || {})
   that.options.module = module
   //setup an early debug
-  that.debug = util.prefixDebug(module,debug)
+  that.debug = infantUtil.prefixDebug(module,debug)
   //module to be ran
   that.module = module
   //handle for child
@@ -106,7 +107,7 @@ Child.prototype.start = function(done){
   that.cp = childProcess.fork(that.module)
   that.pid = that.cp.pid
   //now that we have a pid, relabel the debugger
-  that.debug = util.prefixDebug(that.pid,debug)
+  that.debug = infantUtil.prefixDebug(that.pid,debug)
   that.debug(
     'Spawned process with pid of ' + that.cp.pid + ' to execute ' + that.module)
   //store the exitCode if we get it, and pass the event upwards
@@ -196,7 +197,7 @@ Child.prototype.stop = function(timeout,done){
   that.cp.once('close',function(){
     that.status('ready')
     //restore early debugger until we start again
-    that.debug = util.prefixDebug(that.options.module,debug)
+    that.debug = infantUtil.prefixDebug(that.options.module,debug)
     that.running = false
     done(that.exitCode ?
       that.module + ' failed with code: ' + that.exitCode : null)
@@ -245,10 +246,11 @@ Child.prototype.send = function(msg,socket){
 Child.fork = function(module,options,done){
   if('function' === typeof options){
     done = options
-    options = {}
+    options = null
   }
+  if(!options) options = {}
   if(!options.respawn) options.respawn = false
-  var cp = new Child(util.resolveFile(module,2),options)
+  var cp = new Child(infantUtil.resolveFile(module,2),options)
   if('function' === typeof done){
     cp.on('close',function(){
       if(cp.startupError) return done(cp.startupError)
@@ -274,7 +276,7 @@ Child.fork = function(module,options,done){
  * @return {Child}
  */
 Child.parent = function(module,options){
-  return new Child(util.resolveFile(module,2),options)
+  return new Child(infantUtil.resolveFile(module,2),options)
 }
 
 
@@ -285,7 +287,7 @@ Child.parent = function(module,options){
  * @param {function} stop
  */
 Child.child = function(title,start,stop){
-  var debug = util.prefixDebug(
+  var debug = infantUtil.prefixDebug(
     process.pid,
     require('debug')('oose:child:process')
   )
@@ -337,6 +339,7 @@ Child.child = function(title,start,stop){
   debug('executing start')
   start(function(err){
     if(err){
+      err = util.inspect(err)
       debug('start failed',err)
       if(process.send) process.send({status: 'error',message: err})
       process.exit(1)
@@ -354,7 +357,7 @@ Child.child = function(title,start,stop){
  * @param {function} exec
  */
 Child.childOnce = function(title,exec){
-  var debug = util.prefixDebug(
+  var debug = infantUtil.prefixDebug(
     process.pid,
     require('debug')('oose:childOnce:process')
   )
@@ -372,6 +375,7 @@ Child.childOnce = function(title,exec){
   debug('executing childOnce')
   exec(function(err){
     if(err){
+      err = util.inspect(err)
       debug('childOnce failed',err)
       if(process.send) process.send({status: 'error', message: err})
       process.exit(1)

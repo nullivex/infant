@@ -4,8 +4,9 @@ var EventEmitter = require('events').EventEmitter
 var ObjectManage = require('object-manage')
 var os = require('os')
 var Q = require('q')
+var util = require('util')
 
-var util = require('./util')
+var infantUtil = require('./util')
 
 var instance
 
@@ -48,7 +49,8 @@ var Cluster = function(module,options){
     recycleTimeout: null,
     execArgv: null,
     silent: null,
-    args: null
+    args: null,
+    env: {}
   })
   this.options.$load(options)
   //when we dont have enhanced mode, we need timeouts on stop
@@ -109,7 +111,7 @@ Cluster.prototype.send = function(message){
  */
 Cluster.prototype.fork = function(){
   debug('forking new worker')
-  return this.cluster.fork()
+  return this.cluster.fork(this.options.env)
 }
 
 
@@ -351,7 +353,7 @@ Cluster.prototype.restart = function(done){
  */
 module.exports = function(file,options){
   if(instance) return instance
-  instance = new Cluster(util.resolveFile(file,2),options)
+  instance = new Cluster(infantUtil.resolveFile(file,2),options)
   return instance
 }
 
@@ -371,9 +373,9 @@ module.exports.Cluster = Cluster
  * @param {function} stop
  */
 module.exports.setup = function(server,title,start,stop){
-  var debug = util.prefixDebug(
+  var debug = infantUtil.prefixDebug(
     process.pid,
-    require('debug')('oose:worker:process')
+    require('debug')('infant:ClusterWorker')
   )
   var doStop = function(){
     stop(function(err){
@@ -423,8 +425,10 @@ module.exports.setup = function(server,title,start,stop){
   debug('executing start')
   start(function(err){
     if(err){
+      err = util.inspect(err)
       debug('start failed',err)
-      if(process.send) process.send({status: 'error',message: err})
+      if(process.send)
+        process.send({status: 'error', message: err})
       process.exit(1)
       return
     }

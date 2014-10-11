@@ -373,6 +373,8 @@ documentation
 documentation
 * `args` - (array) passed through to `cluster.setupMaster()` see the node
 documentation
+* `env` - (object) passed through to `cluster.fork(env)` see the node
+documentation
 
 #### Cluster.prototype.each(cb)
 
@@ -480,7 +482,26 @@ stopped
 * `online` - Emitted when the startup sequence is complete
 * `offline` - Emitted when the shutdown sequence is complete
 
+## Debugging
+
+It is useful to see the interprocess communication for debugging and just
+overall feel that the system is working.
+
+This package is built using the https://www.npmjs.org/package/debug package.
+
+Use the following to see debug output
+
+```
+$ DEBUG=infant* node app
+```
+
 ## Changelog
+
+### 0.8.3
+* Fixes #1 where complex errors wouldnt bubble upwards for child and cluster
+* Fixes bug with option handling in `Child.fork()`
+* Adds `env` to options in order to pass environment variables to any calls to
+`cluster.fork()`
 
 ### 0.8.2
 * Dependency for `async` was in `devDependencies`

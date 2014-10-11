@@ -13,7 +13,8 @@ if(require.main === module){
     'worker',
     function(done){
       server.listen(3333,function(err){
-        done(err)
+        if(process.env.ERROR) done(new Error('foo'))
+        else done(err)
       })
     },
     function(done){

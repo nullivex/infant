@@ -125,6 +125,22 @@ describe('helpers/Child',function(){
       })
     })
   })
+  describe('complex error handling',function(){
+    it('should handle complex errors',function(done){
+      var child = Child.parent('./assets/childError',{respawn: false})
+      child.start(function(err){
+        expect(err).to.equal('[Error: bar]')
+        child.stop(done)
+      })
+    })
+    it('should handle complex errors on once',function(done){
+      var child = Child.fork('./assets/childOnceError')
+      child.start(function(err){
+        expect(err).to.equal('[Error: baz]')
+        done()
+      })
+    })
+  })
   describe('events',function(){
     var child
     beforeEach(function(done){

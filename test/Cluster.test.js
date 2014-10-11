@@ -74,6 +74,14 @@ describe('helpers/Cluster',function(){
           recycleTimeout: null
         })
       })
+      it('should bubble complex errors properly',function(done){
+        inst.options.env = {error: 'true'}
+        inst.start(function(err){
+          expect(err).to.equal('[Error: foo]')
+          inst.options.env = {}
+          done()
+        })
+      })
       it('should startup and shutdown gracefully',function(done){
         inst.start(function(err){
           if(err) return done(err)
