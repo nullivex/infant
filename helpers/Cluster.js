@@ -43,6 +43,7 @@ var Cluster = function(module,options){
   //setup default options
   this.options = new ObjectManage({
     enhanced: false,
+    respawn: true,
     count: null,
     maxConnections: null,
     stopTimeout: null,
@@ -110,7 +111,7 @@ Cluster.prototype.send = function(message){
  * @return {object}
  */
 Cluster.prototype.fork = function(){
-  debug('forking new worker')
+  debug('forking new worker with env',this.options.env)
   return this.cluster.fork(this.options.env)
 }
 
@@ -236,14 +237,23 @@ Cluster.prototype.respawn = function(worker,code,signal){
   //remove the counter
   delete that.counters[worker.id]
   that.emit('exit',worker,code,signal)
-  if(false === worker.suicide && !that.stopping && that.running){
-    debug('Worker ' + worker.id + ' died (' + (signal || code) + ') restarting')
+  if(
+    false === worker.suicide &&
+    !that.stopping &&
+    that.running &&
+    that.options.respawn
+  ){
+    debug('Worker ' + worker.id +
+      ' died (' + (signal || code) + ') and is respawn eligible, restarting')
     that.cluster.once('online',function(worker){
       debug('Worker ' + worker.id + ' is now online')
       that.emit('respawn',worker,code,signal)
     })
     //start the new worker
     that.fork()
+  } else {
+    debug('Worker ' + worker.id +
+      ' died (' + (signal || code) + ') and is not respawn eligible, exiting')
   }
 }
 

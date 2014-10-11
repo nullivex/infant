@@ -358,6 +358,7 @@ defaults to `process.argv[1]`
 
 **Options**
 * `enhanced` - (boolean) default false, enable enhanced worker mode
+* `respawn` - (boolean) default true, enabled worker respawn on unexpected exit
 * `count` - (number) number of workers to start, defaults to `os.cpus().length`
 * `maxConnections` - (number) only available in enhanced mode, but will cause
 a worker to be shutdown and a new one started (recycled) when the worker
@@ -503,6 +504,7 @@ $ DEBUG=infant* node app
 * Fixes bug with option handling in `Child.fork()`
 * Adds `env` to options in order to pass environment variables to any calls to
 `cluster.fork()`
+* Adds respawn control to `Cluster` helper
 
 ### 0.8.2
 * Dependency for `async` was in `devDependencies`

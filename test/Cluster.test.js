@@ -5,12 +5,16 @@ var request = require('request')
 var cluster = require('../helpers/Cluster')
 
 
-describe('helpers/Cluster',function(){
+describe.only('helpers/Cluster',function(){
   this.timeout(10000)
   describe('lifecycle',function(){
     var inst
     beforeEach(function(done){
-      inst = cluster('./assets/worker',{count: 1, stopTimeout: 100})
+      inst = cluster('./assets/worker',{
+        count: 1,
+        stopTimeout: 100,
+        respawn: false
+      })
       done()
     })
     afterEach(function(done){
@@ -28,7 +32,7 @@ describe('helpers/Cluster',function(){
         })
       })
     })
-    it('should restart',function(done){
+    it.only('should restart',function(done){
       inst.start(function(err){
         if(err) return done(err)
         inst.restart(function(err){
@@ -37,10 +41,12 @@ describe('helpers/Cluster',function(){
       })
     })
     it('should respawn',function(done){
+      inst.options.respawn = true
       inst.start(function(err){
         if(err) return done(err)
         inst.on('respawn',function(worker){
           expect(worker).to.be.an('object')
+          inst.options.respawn = false
           done()
         })
         //issue a kill so it will respawn
@@ -75,7 +81,7 @@ describe('helpers/Cluster',function(){
         })
       })
       it('should bubble complex errors properly',function(done){
-        inst.options.env = {error: 'true'}
+        inst.options.env = {ERROR: 'true'}
         inst.start(function(err){
           expect(err).to.equal('[Error: foo]')
           inst.options.env = {}
