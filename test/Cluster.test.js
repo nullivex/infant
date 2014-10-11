@@ -5,7 +5,7 @@ var request = require('request')
 var cluster = require('../helpers/Cluster')
 
 
-describe.only('helpers/Cluster',function(){
+describe('helpers/Cluster',function(){
   this.timeout(10000)
   describe('lifecycle',function(){
     var inst
