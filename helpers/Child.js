@@ -289,7 +289,7 @@ Child.parent = function(module,options){
 Child.child = function(title,start,stop){
   var debug = infantUtil.prefixDebug(
     process.pid,
-    require('debug')('oose:child:process')
+    require('debug')('infant:child:process')
   )
   var doStop = function(){
     stop(function(err){
@@ -359,7 +359,7 @@ Child.child = function(title,start,stop){
 Child.childOnce = function(title,exec){
   var debug = infantUtil.prefixDebug(
     process.pid,
-    require('debug')('oose:childOnce:process')
+    require('debug')('infant:childOnce:process')
   )
   debug('setting process title',title)
   process.title = title

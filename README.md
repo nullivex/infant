@@ -499,6 +499,9 @@ $ DEBUG=infant* node app
 
 ## Changelog
 
+### 0.8.4
+* Cleaned up debug to no longer use `oose` labeling
+
 ### 0.8.3
 * Fixes #1 where complex errors wouldnt bubble upwards for child and cluster
 * Fixes bug with option handling in `Child.fork()`
