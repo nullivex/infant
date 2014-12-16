@@ -208,7 +208,7 @@ Child.prototype.stop = function(timeout,done){
 /**
  * Kill the child
  * @param {string} signal
- * @return {bool}
+ * @return {Boolean}
  */
 Child.prototype.kill = function(signal){
   if(this.cp && this.cp.connected){
@@ -260,7 +260,6 @@ Child.fork = function(module,options,done){
       setTimeout(function(){
         cp.removeAllListeners('close')
         cp.kill('SIGKILL')
-        done('Process timeout reached, killed')
       },options.timeout)
     }
     cp.start(function(){})
