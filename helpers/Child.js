@@ -244,6 +244,7 @@ Child.prototype.send = function(msg,socket){
  * @return {Child}
  */
 Child.fork = function(module,options,done){
+  var doneCalled = false
   if('function' === typeof options){
     done = options
     options = null
@@ -254,12 +255,19 @@ Child.fork = function(module,options,done){
   if('function' === typeof done){
     cp.on('close',function(){
       if(cp.startupError) return done(cp.startupError)
-      done()
+      if(!doneCalled){
+        doneCalled = true
+        done()
+      }
     })
     if(options.timeout){
       setTimeout(function(){
         cp.removeAllListeners('close')
         cp.kill('SIGKILL')
+        if(!doneCalled){
+          doneCalled = true
+          done('Process timeout reached, killed')
+        }
       },options.timeout)
     }
     cp.start(function(){})

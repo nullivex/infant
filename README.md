@@ -499,6 +499,10 @@ $ DEBUG=infant* node app
 
 ## Changelog
 
+### 0.8.5
+* Fixed: Worker helper should output a usable error when an invalid server is passed
+* Fixed: Callback already called error
+
 ### 0.8.4
 * Cleaned up debug to no longer use `oose` labeling
 

@@ -7,6 +7,20 @@ var cluster = require('../helpers/Cluster')
 
 describe('helpers/Cluster',function(){
   this.timeout(10000)
+  describe('instantiation',function(){
+    it('should throw an error on an invalid instance of net.Server',
+      function(done){
+        try {
+          cluster.setup('./assets/workerBroken')
+          done(new Error('Did not throw an error'))
+        } catch(e){
+          expect(e.message).to.equal('Not a valid net server ' +
+            'passed for cluster setup')
+          done()
+        }
+      }
+    )
+  })
   describe('lifecycle',function(){
     var inst
     beforeEach(function(done){
