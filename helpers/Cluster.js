@@ -1,6 +1,7 @@
 'use strict';
 var debug = require('debug')('infant:Cluster')
 var EventEmitter = require('events').EventEmitter
+var net = require('net')
 var ObjectManage = require('object-manage')
 var os = require('os')
 var Q = require('q')
@@ -383,6 +384,8 @@ module.exports.Cluster = Cluster
  * @param {function} stop
  */
 module.exports.setup = function(server,title,start,stop){
+  if(!(server instanceof net.Server))
+    throw new Error('Not a valid net server passed for cluster setup')
   var debug = infantUtil.prefixDebug(
     process.pid,
     require('debug')('infant:ClusterWorker')
