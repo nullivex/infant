@@ -64,7 +64,8 @@ Child.prototype = Object.create(EventEmitter.prototype)
  * @type {object}
  */
 Child.prototype.defaultOptions = {
-  respawn: true
+  respawn: true,
+  fork: {}
 }
 
 
@@ -104,7 +105,7 @@ Child.prototype.start = function(done){
   that.status('starting')
   that.debug('Starting child process')
   //spawn the new process, capture the pid
-  that.cp = childProcess.fork(that.module)
+  that.cp = childProcess.fork(that.module,that.options.fork)
   that.pid = that.cp.pid
   //now that we have a pid, relabel the debugger
   that.debug = infantUtil.prefixDebug(that.pid,debug)

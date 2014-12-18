@@ -5,6 +5,23 @@ var Child = require('../helpers/Child')
 
 describe('helpers/Child',function(){
   this.timeout(10000)
+  describe('construction',function(){
+    it('should construct without options',function(done){
+      var child = Child.parent('./assets/Child')
+      expect(child).to.be.an.instanceOf(Child)
+      done()
+    })
+    it('should construct with options',function(done){
+      var child = Child.parent('./assets/Child',{
+        fork: {
+          env: {'NODE_ENV': 'production'}
+        }
+      })
+      expect(child).to.be.an.instanceOf(Child)
+      expect(child.options.fork.env.NODE_ENV).to.equal('production')
+      done()
+    })
+  })
   describe('lifecycle',function(){
     var child
     beforeEach(function(done){

@@ -251,6 +251,8 @@ lifecycle.start(function(err){
 
 **Options**
 * `respawn` - (boolean) defaults to true (restart the process on exit)
+* `fork` - (object) options passed to `child_process.fork()` see the node
+documentation
 
 #### Child.prototype.status()
 
@@ -498,6 +500,9 @@ $ DEBUG=infant* node app
 ```
 
 ## Changelog
+
+### 0.9.0
+* Now passes construction options to Child.fork()
 
 ### 0.8.5
 * Fixed: Worker helper should output a usable error when an invalid server is passed
