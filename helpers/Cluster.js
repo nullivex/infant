@@ -146,24 +146,41 @@ Cluster.prototype.setupWorker = function(worker){
     //check if the worker is over the connection threshold, issue a shutdown
     if(
       that.options.maxConnections &&
-      that.counters[worker.id] > that.options.maxConnections
+      that.counters[worker.id] > that.options.maxConnections &&
+      !worker.recycling
     ){
+      worker.recycling = true
       debug(
         'Worker ' + worker.id +
-          ' has reached its connection limit, recycling',
+        ' has reached its connection limit, recycling',
         that.counters[worker.id])
       //spawn a new worker now
-      that.fork()
-      //tell the old worker to shutdown gracefully
-      that.emit('recycle',worker,that.counters[worker.id])
-      //force suicide to true, prevent respawns
-      worker.suicide = true
-      //in enhanced mode tell the worker to stop
-      if(that.options.enhanced) worker.send('stop')
-      //set a timeout to kill the worker so we dont bleed workers
-      setTimeout(function(){
-        worker.kill('SIGKILL')
-      },that.options.recycleTimeout || 5000)
+      var newWorker = that.fork()
+      var startedListener = function(msg){
+        if('object' !== typeof msg || 'started' !== msg.status) return
+        newWorker.removeListener('message',startedListener)
+        //need to wait until the new worker is online before killing the
+        //old one
+        //tell the old worker to shutdown gracefully
+        that.emit('recycle',worker,that.counters[worker.id])
+        //in enhanced mode tell the worker to stop
+        if(that.options.enhanced){
+          //set a timeout to kill the worker so we dont bleed workers
+          var disconnectTimeout = setTimeout(function(){
+            worker.kill()
+          },that.options.recycleTimeout || 5000)
+          worker.on('disconnect',function(){
+            clearTimeout(disconnectTimeout)
+            debug('worker ' + worker.id + ' recycled successfully!')
+            //console.log('sending stop!')
+            //worker.send('stop')
+          })
+          worker.disconnect()
+        } else {
+          worker.kill()
+        }
+      }
+      newWorker.on('message',startedListener)
     }
   })
 }
@@ -245,7 +262,7 @@ Cluster.prototype.respawn = function(worker,code,signal){
     that.options.respawn
   ){
     debug('Worker ' + worker.id +
-      ' died (' + (signal || code) + ') and is respawn eligible, restarting')
+    ' died (' + (signal || code) + ') and is respawn eligible, restarting')
     that.cluster.once('online',function(worker){
       debug('Worker ' + worker.id + ' is now online')
       that.emit('respawn',worker,code,signal)
@@ -254,7 +271,7 @@ Cluster.prototype.respawn = function(worker,code,signal){
     that.fork()
   } else {
     debug('Worker ' + worker.id +
-      ' died (' + (signal || code) + ') and is not respawn eligible, exiting')
+    ' died (' + (signal || code) + ') and is not respawn eligible, exiting')
   }
 }
 
