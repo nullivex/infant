@@ -501,8 +501,11 @@ $ DEBUG=infant* node app
 
 ## Changelog
 
-### 0.9.2
+### 0.9.3
 * Added more verbosity to worker recycle
+* Changed logs to always reference the workers pid
+* Fixed bug where worker would try to send a request notification even if the
+master was already disconnected.
 
 ### 0.9.1
 * Fixed a bug where worker recycle wasnt properly using `worker.disconnect()`

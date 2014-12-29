@@ -2,7 +2,7 @@
   "author": "SnailJS <developers@snailjs.org>",
   "name": "infant",
   "description": "Child process, and cluster helper for Node.js",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "homepage": "http://snailjs.org/",
   "repository": {
     "type": "git",

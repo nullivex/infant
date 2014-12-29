@@ -151,7 +151,7 @@ Cluster.prototype.setupWorker = function(worker){
     ){
       worker.recycling = true
       debug(
-        'Worker ' + worker.id +
+        'Worker ' + worker.process.pid +
         ' has reached its connection limit, recycling',
         that.counters[worker.id])
       //spawn a new worker now
@@ -167,17 +167,18 @@ Cluster.prototype.setupWorker = function(worker){
         if(that.options.enhanced){
           //set a timeout to kill the worker so we dont bleed workers
           var disconnectTimeout = setTimeout(function(){
-            debug('worker ' + worker.id + ' recycle timeout exceeded... ' +
-              'killed. recycle complete')
-            worker.kill()
+            debug('worker ' + worker.process.pid + ' recycle timeout ' +
+            'exceeded... killed. recycle complete')
+            worker.kill('SIGKILL')
           },that.options.recycleTimeout || 5000)
           worker.on('disconnect',function(){
             clearTimeout(disconnectTimeout)
-            debug('worker ' + worker.id + ' recycled successfully!')
+            debug('worker ' + worker.process.pid + ' recycled successfully!')
+            worker.kill('SIGKILL')
           })
           worker.disconnect()
         } else {
-          worker.kill()
+          worker.kill('SIGKILL')
         }
       }
       newWorker.on('message',startedListener)
@@ -196,13 +197,13 @@ Cluster.prototype.start = function(done){
   var online = 0
   //handler initial workers coming online
   var workerStart = function(worker){
-    debug('Worker ' + worker.id + ' online')
+    debug('Worker ' + worker.process.pid + ' online')
     //in enhanced mode we wait for the worker to confirm its started
     if(that.options.enhanced){
       worker.once('message',function(msg){
-        debug('got message from ' + worker.id,msg)
+        debug('got message from ' + worker.process.pid,msg)
         if('started' === msg.status){
-          debug('Worker ' + worker.id + ' started')
+          debug('Worker ' + worker.process.pid + ' started')
           online++
           if(online >= that.count && !that.running){
             deferred.resolve()
@@ -251,7 +252,7 @@ Cluster.prototype.start = function(done){
  */
 Cluster.prototype.respawn = function(worker,code,signal){
   var that = this
-  debug('Worker ' + worker.id + ' exited',code,signal)
+  debug('Worker ' + worker.process.pid + ' exited',code,signal)
   //remove the counter
   delete that.counters[worker.id]
   that.emit('exit',worker,code,signal)
@@ -261,16 +262,16 @@ Cluster.prototype.respawn = function(worker,code,signal){
     that.running &&
     that.options.respawn
   ){
-    debug('Worker ' + worker.id +
+    debug('Worker ' + worker.process.pid +
     ' died (' + (signal || code) + ') and is respawn eligible, restarting')
     that.cluster.once('online',function(worker){
-      debug('Worker ' + worker.id + ' is now online')
+      debug('Worker ' + worker.process.pid + ' is now online')
       that.emit('respawn',worker,code,signal)
     })
     //start the new worker
     that.fork()
   } else {
-    debug('Worker ' + worker.id +
+    debug('Worker ' + worker.process.pid +
     ' died (' + (signal || code) + ') and is not respawn eligible, exiting')
   }
 }
@@ -351,7 +352,8 @@ Cluster.prototype.stop = function(done){
 Cluster.prototype.kill = function(signal){
   var that = this
   that.each(function(worker){
-    debug(that.module,'sending worker pid ' + worker.process.pid + ' kill')
+    debug(that.module,'sending worker ' + worker.process.pid +
+      ' kill (' + signal + ')')
     worker.kill(signal || 'SIGTERM')
   })
 }
@@ -465,7 +467,7 @@ module.exports.setup = function(server,title,start,stop){
     debug('start finished')
     if(process.send) process.send({status: 'started'})
     server.on('request',function(){
-      if(process.send) process.send('request')
+      if(process.send && process.connected) process.send('request')
     })
   })
 }
