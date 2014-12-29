@@ -504,6 +504,8 @@ $ DEBUG=infant* node app
 ### 0.9.1
 * Fixed a bug where worker recycle wasnt properly using `worker.disconnect()`
 to ensure that all existing connections are handled properly.
+* Also fixes an issue where two or more workers would be restarted each time
+one is recycled.
 
 ### 0.9.0
 * Now passes construction options to Child.fork()
