@@ -172,7 +172,7 @@ Cluster.prototype.setupWorker = function(worker){
             'exceeded... killed. recycle complete')
             killed = true
             worker.kill('SIGKILL')
-          },that.options.recycleTimeout || 5000)
+          },that.options.recycleTimeout || 30000)
           worker.on('disconnect',function(){
             if(!killed){
               clearTimeout(disconnectTimeout)
