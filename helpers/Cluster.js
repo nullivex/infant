@@ -146,14 +146,14 @@ Cluster.prototype.setupWorker = function(worker){
     //check if the worker is over the connection threshold, issue a shutdown
     if(
       that.options.maxConnections &&
-      that.counters[worker.id] > that.options.maxConnections &&
+      that.counters[worker.id] >= that.options.maxConnections &&
       !worker.recycling
     ){
       worker.recycling = true
       debug(
-        'Worker ' + worker.process.pid +
-        ' has reached its connection limit, recycling',
-        that.counters[worker.id])
+        'Worker ' + worker.process.pid + ' has reached its connection limit ' +
+        '(' + that.counters[worker.id] + '), recycling'
+      )
       //spawn a new worker now
       var newWorker = that.fork()
       var startedListener = function(msg){
@@ -166,15 +166,20 @@ Cluster.prototype.setupWorker = function(worker){
         //in enhanced mode tell the worker to stop
         if(that.options.enhanced){
           //set a timeout to kill the worker so we dont bleed workers
+          var killed = false
           var disconnectTimeout = setTimeout(function(){
             debug('worker ' + worker.process.pid + ' recycle timeout ' +
             'exceeded... killed. recycle complete')
+            killed = true
             worker.kill('SIGKILL')
           },that.options.recycleTimeout || 5000)
           worker.on('disconnect',function(){
-            clearTimeout(disconnectTimeout)
-            debug('worker ' + worker.process.pid + ' recycled successfully!')
-            worker.kill('SIGKILL')
+            if(!killed){
+              clearTimeout(disconnectTimeout)
+              debug('worker ' + worker.process.pid + ' recycled successfully!')
+              worker.kill('SIGKILL')
+            }
+            delete that.counters[worker.id]
           })
           worker.disconnect()
         } else {

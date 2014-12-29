@@ -501,6 +501,10 @@ $ DEBUG=infant* node app
 
 ## Changelog
 
+### 0.9.4
+* Improved debug logging on recycling
+* Now deletes worker connection counters after recycling (prevent mem leaks)
+
 ### 0.9.3
 * Added more verbosity to worker recycle
 * Changed logs to always reference the workers pid
