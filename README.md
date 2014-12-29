@@ -501,6 +501,9 @@ $ DEBUG=infant* node app
 
 ## Changelog
 
+### 0.9.2
+* Added more verbosity to worker recycle
+
 ### 0.9.1
 * Fixed a bug where worker recycle wasnt properly using `worker.disconnect()`
 to ensure that all existing connections are handled properly.

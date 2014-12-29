@@ -167,13 +167,13 @@ Cluster.prototype.setupWorker = function(worker){
         if(that.options.enhanced){
           //set a timeout to kill the worker so we dont bleed workers
           var disconnectTimeout = setTimeout(function(){
+            debug('worker ' + worker.id + ' recycle timeout exceeded... ' +
+              'killed. recycle complete')
             worker.kill()
           },that.options.recycleTimeout || 5000)
           worker.on('disconnect',function(){
             clearTimeout(disconnectTimeout)
             debug('worker ' + worker.id + ' recycled successfully!')
-            //console.log('sending stop!')
-            //worker.send('stop')
           })
           worker.disconnect()
         } else {
