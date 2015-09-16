@@ -13,7 +13,7 @@ var path = require('path')
 exports.resolveFile = function(file,level){
   //resolve file
   if(!file) file = process.argv[1]
-  else if(!file.match(/^\//)){
+  else if(!file.match(/^\//) && !file.match(/^[A-Z]:/)){
     //resolve the dir of the caller
     file = path.resolve(
       [path.dirname(callsite()[level || 2].getFileName()),file].join('/')

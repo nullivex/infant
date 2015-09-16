@@ -501,6 +501,11 @@ $ DEBUG=infant* node app
 
 ## Changelog
 
+### 0.9.5
+* Bug fix to address using absolute paths on Windows and child resolution.
+* Added test against windows absolute paths
+* Bump dependencies
+
 ### 0.9.4
 * Improved debug logging on recycling
 * Now deletes worker connection counters after recycling (prevent mem leaks)
