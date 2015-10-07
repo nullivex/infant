@@ -4,6 +4,8 @@ Infant [![Build Status](https://travis-ci.org/snailjs/infant.png?branch=master)]
 Infant is a helper package that wraps some of the core node modules that are
 used to provide child process and cluster support.
 
+**NOTE** This branch is maintained against Node 0.10.x
+
 This package comes with two main helpers **Child**, **Cluster** which provide 
 enhanced functionality over the basic functionality that the core packages
 provide. Additionally the **Lifecycle** helper is provided for organizing

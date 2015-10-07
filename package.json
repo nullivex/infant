@@ -18,7 +18,7 @@
     "process"
   ],
   "engines": {
-    "node": ">=0.10.0"
+    "node": "<=0.10.x"
   },
   "dependencies": {
     "async": "1.4.x",
