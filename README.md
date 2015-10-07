@@ -501,6 +501,12 @@ $ DEBUG=infant* node app
 
 ## Changelog
 
+### 0.10.0
+* Upgraded dependencies
+* Working with node 4.x
+* Added a workaround to work with node 0.12.x +
+* Fixed an issue with sending messages to workers who are not listening
+
 ### 0.9.5
 * Bug fix to address using absolute paths on Windows and child resolution.
 * Added test against windows absolute paths

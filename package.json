@@ -2,7 +2,7 @@
   "author": "SnailJS <developers@snailjs.org>",
   "name": "infant",
   "description": "Child process, and cluster helper for Node.js",
-  "version": "0.9.5",
+  "version": "0.10.0",
   "homepage": "http://snailjs.org/",
   "repository": {
     "type": "git",
@@ -32,8 +32,8 @@
     "test": "node ./node_modules/mocha/bin/mocha"
   },
   "devDependencies": {
-    "chai": "3.2.x",
+    "chai": "3.3.x",
     "mocha": "2.3.x",
-    "request": "2.62.x"
+    "request": "2.64.x"
   }
 }

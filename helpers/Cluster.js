@@ -102,7 +102,10 @@ Cluster.prototype.each = function(cb){
 Cluster.prototype.send = function(message){
   debug('sending message to workers',message)
   this.each(function(worker){
-    worker.send(message)
+    worker.send(message,function(err){
+      if(err)
+        debug(worker.process.pid,'send error',err.message)
+    })
   })
 }
 
@@ -113,7 +116,7 @@ Cluster.prototype.send = function(message){
  */
 Cluster.prototype.fork = function(){
   debug('forking new worker with env',this.options.env)
-  return this.cluster.fork(this.options.env)
+  return infantUtil.prepareWorker(this.cluster.fork(this.options.env))
 }
 
 

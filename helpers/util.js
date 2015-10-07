@@ -40,3 +40,28 @@ exports.prefixDebug = function(prefix,inst){
     inst.apply(null,args)
   }
 }
+
+
+/**
+ * Prepare a worker, currently implements a workaround to deal with an
+ * assertion error that says: "Resource leak detected"
+ * This code is taken from the following issue:
+ * https://github.com/nodejs/node-v0.x-archive/issues/9409#issuecomment-84038111
+ * @param {object} worker
+ * @return {object} worker
+ */
+exports.prepareWorker = function(worker){
+  var listeners = worker.process.listeners('exit')[0]
+  var exit = listeners[Object.keys(listeners)[0]]
+
+  listeners = worker.process.listeners('disconnect')[0]
+  var disconnect = listeners[Object.keys(listeners)[0]]
+
+  worker.process.removeListener('exit', exit)
+  worker.process.once('exit', function(exitCode, signalCode) {
+    if (worker.state !== 'disconnected')
+      disconnect()
+    exit(exitCode, signalCode)
+  })
+  return worker
+}
