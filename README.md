@@ -510,6 +510,7 @@ $ DEBUG=infant* node app
 * Working with node 4.x
 * Added a workaround to work with node 0.12.x +
 * Fixed an issue with sending messages to workers who are not listening
+* This version is no longer compatible with node 0.10
 
 ### 0.9.5
 * Bug fix to address using absolute paths on Windows and child resolution.
