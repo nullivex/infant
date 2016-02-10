@@ -175,7 +175,7 @@ Child.prototype.start = function(done){
 Child.prototype.stop = function(timeout,done){
   if('function' === typeof timeout){
     done = timeout
-    timeout = 0
+    timeout = 10000
   }
   var that = this
   //make sure the child is running first
@@ -299,7 +299,10 @@ Child.child = function(title,start,stop){
     process.pid,
     require('debug')('infant:child:process')
   )
+  var stopCalled = false
   var doStop = function(){
+    if(stopCalled) return
+    stopCalled = true
     stop(function(err){
       if(err){
         debug('stop failed',err)
@@ -317,9 +320,11 @@ Child.child = function(title,start,stop){
   if(process.send){
     process.on('SIGTERM',function(){
       debug('ignored SIGTERM')
+      doStop()
     })
     process.on('SIGINT',function(){
       debug('ignored SIGINT')
+      doStop()
     })
     process.on('SIGHUP',function(){
       debug('got SIGHUP, gracefully exiting')

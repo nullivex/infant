@@ -6,7 +6,7 @@ used to provide child process and cluster support.
 
 **NOTE** For Node 0.10.x use Infant 0.9.5
 
-**NOTE** For Node 0.12.0+ (including 4.x) use Infant 0.10+
+**NOTE** For Node 0.12.0+ (including 5.x) use Infant 0.10+
 
 This package comes with two main helpers **Child**, **Cluster** which provide 
 enhanced functionality over the basic functionality that the core packages
@@ -504,6 +504,9 @@ $ DEBUG=infant* node app
 ```
 
 ## Changelog
+
+### 0.11.0
+* Better process stop handling
 
 ### 0.10.0
 * Upgraded dependencies
