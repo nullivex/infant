@@ -505,6 +505,9 @@ $ DEBUG=infant* node app
 
 ## Changelog
 
+### 0.11.1
+* Kill child processes on timeout rather than term
+
 ### 0.11.0
 * Better process stop handling
 

@@ -192,7 +192,7 @@ Child.prototype.stop = function(timeout,done){
   //only wait a specific amount of time if specified
   if(timeout > 0){
     setTimeout(function(){
-      that.cp.kill()
+      that.cp.kill('SIGKILL')
     },timeout)
   }
   that.cp.once('close',function(){
