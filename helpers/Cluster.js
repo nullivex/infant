@@ -45,6 +45,7 @@ var Cluster = function(module,options){
   this.options = new ObjectManage({
     enhanced: false,
     respawn: true,
+    respawnDelay: 1000,
     count: null,
     maxConnections: null,
     stopTimeout: null,
@@ -102,10 +103,18 @@ Cluster.prototype.each = function(cb){
 Cluster.prototype.send = function(message){
   debug('sending message to workers',message)
   this.each(function(worker){
-    worker.send(message,function(err){
-      if(err)
-        debug(worker.process.pid,'send error',err.message)
-    })
+    try {
+      var majorVersion = +process.version.replace('v','').substr(0,1)
+      if(0 === majorVersion){
+        worker.send('' + message)
+      } else {
+        worker.send('' + message,function(err){
+          if(err) debug(worker.process.pid,'send error',err)
+        })
+      }
+    } catch(e){
+      debug(worker.process.pid,'send failed',e)
+    }
   })
 }
 
@@ -180,7 +189,15 @@ Cluster.prototype.setupWorker = function(worker){
             if(!killed){
               clearTimeout(disconnectTimeout)
               debug('worker ' + worker.process.pid + ' recycled successfully!')
-              worker.kill('SIGKILL')
+              if('function' === typeof worker.kill){
+                worker.kill('SIGKILL')
+              } else {
+                try {
+                  worker.send('stop')
+                } catch(e){
+                  debug(worker.process.pid,'kill failed',e)
+                }
+              }
             }
             delete that.counters[worker.id]
           })
@@ -264,8 +281,11 @@ Cluster.prototype.respawn = function(worker,code,signal){
   //remove the counter
   delete that.counters[worker.id]
   that.emit('exit',worker,code,signal)
+  var workerSuicideFlag = 'suicide'
+  var majorVersion = process.version.replace('v','').substr(0,1)
+  if(majorVersion >= 6) workerSuicideFlag = 'exitedAfterDisconnect'
   if(
-    false === worker.exitedAfterDisconnect &&
+    false === worker[workerSuicideFlag] &&
     !that.stopping &&
     that.running &&
     that.options.respawn
@@ -277,7 +297,9 @@ Cluster.prototype.respawn = function(worker,code,signal){
       that.emit('respawn',worker,code,signal)
     })
     //start the new worker
-    that.fork()
+    setTimeout(function(){
+      that.fork()
+    },that.respawnDelay)
   } else {
     debug('Worker ' + worker.process.pid +
     ' died (' + (signal || code) + ') and is not respawn eligible, exiting')
@@ -362,7 +384,16 @@ Cluster.prototype.kill = function(signal){
   that.each(function(worker){
     debug(that.module,'sending worker ' + worker.process.pid +
       ' kill (' + signal + ')')
-    worker.kill(signal || 'SIGTERM')
+    if('function' === typeof worker.kill){
+      worker.kill(signal || 'SIGTERM')
+    } else {
+      try {
+        worker.send('stop')
+      } catch(e){
+        debug(worker.process.pid,'kill failed',e)
+      }
+
+    }
   })
 }
 

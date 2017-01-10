@@ -365,6 +365,7 @@ defaults to `process.argv[1]`
 **Options**
 * `enhanced` - (boolean) default false, enable enhanced worker mode
 * `respawn` - (boolean) default true, enabled worker respawn on unexpected exit
+* `respawnDelay` - (number) default 1000, milliseconds before respawning a process
 * `count` - (number) number of workers to start, defaults to `os.cpus().length`
 * `maxConnections` - (number) only available in enhanced mode, but will cause
 a worker to be shutdown and a new one started (recycled) when the worker
@@ -372,7 +373,7 @@ achieves maxConnections.
 * `stopTimeout` - (number) Timeout in `ms` to wait for workers to stop, defaults
 to no timeout when in enhanced mode, however it defaults to `5000` in normal
 mode.
-* `recycleTimeou`t - (number) Timeout in `ms` to wait for a worker to stop when
+* `recycleTimeout` - (number) Timeout in `ms` to wait for a worker to stop when
 it is being recycled, similar to stopTimeout, defaults to `5000` and must be 
 defined
 * `execArgv` - (array) passed through to `cluster.setupMaster()` see the node
@@ -504,6 +505,10 @@ $ DEBUG=infant* node app
 ```
 
 ## Changelog
+
+### 0.12.1
+* More bug fixes to make infant work across all major node versions.
+* Hold down timer added to respawn to prevent zombie processes stacking up.
 
 ### 0.12.0
 * Upgraded to work with the latest node versions and be backwards compatible.

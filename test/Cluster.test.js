@@ -58,7 +58,7 @@ describe('helpers/Cluster',function(){
       inst.options.respawn = true
       inst.start(function(err){
         if(err) return done(err)
-        inst.on('respawn',function(worker){
+        inst.once('respawn',function(worker){
           expect(worker).to.be.an('object')
           inst.options.respawn = false
           done()
@@ -74,8 +74,8 @@ describe('helpers/Cluster',function(){
         if(err) return done(err)
         inst.each(function(worker){
           expect(worker).to.be.an('object')
-          done()
         })
+        done()
       })
     })
     it('should send messages to the children',function(done){
