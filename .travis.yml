@@ -8,3 +8,4 @@ node_js:
   - "5"
   - "6"
   - "7"
+before_install: if [[ `npm -v` != 4* ]]; then npm i -g npm@4; fi
