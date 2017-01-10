@@ -97,7 +97,12 @@ describe('helpers/Cluster',function(){
       it('should bubble complex errors properly',function(done){
         inst.options.env = {ERROR: 'true'}
         inst.start(function(err){
-          expect(err).to.equal('[Error: foo]')
+          var majorVersion = process.version.replace('v','').substr(0,1)
+          if(majorVersion >= 6){
+            expect(err).to.match(/Error: foo/)
+          } else {
+            expect(err).to.equal('[Error: foo]')
+          }
           inst.options.env = {}
           done()
         })

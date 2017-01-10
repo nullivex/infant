@@ -146,14 +146,24 @@ describe('helpers/Child',function(){
     it('should handle complex errors',function(done){
       var child = Child.parent('./assets/childError',{respawn: false})
       child.start(function(err){
-        expect(err).to.equal('[Error: bar]')
+        var majorVersion = process.version.replace('v','').substr(0,1)
+        if(majorVersion >= 6){
+          expect(err).to.match(/Error: foo\n/)
+        } else {
+          expect(err).to.equal('[Error: foo]')
+        }
         child.stop(done)
       })
     })
     it('should handle complex errors on once',function(done){
       var child = Child.fork('./assets/childOnceError')
       child.start(function(err){
-        expect(err).to.equal('[Error: baz]')
+        var majorVersion = process.version.replace('v','').substr(0,1)
+        if(majorVersion >= 6){
+          expect(err).to.match(/Error: baz\n/)
+        } else {
+          expect(err).to.equal('[Error: baz]')
+        }
         done()
       })
     })

@@ -265,7 +265,7 @@ Cluster.prototype.respawn = function(worker,code,signal){
   delete that.counters[worker.id]
   that.emit('exit',worker,code,signal)
   if(
-    false === worker.suicide &&
+    false === worker.exitedAfterDisconnect &&
     !that.stopping &&
     that.running &&
     that.options.respawn

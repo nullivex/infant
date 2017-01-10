@@ -57,11 +57,16 @@ exports.prepareWorker = function(worker){
   listeners = worker.process.listeners('disconnect')[0]
   var disconnect = listeners[Object.keys(listeners)[0]]
 
-  worker.process.removeListener('exit', exit)
-  worker.process.once('exit', function(exitCode, signalCode) {
-    if (worker.state !== 'disconnected')
+  if('function' === typeof exit){
+    worker.process.removeListener('exit',exit)
+  }
+  worker.process.once('exit', function(exitCode,signalCode){
+    if(worker.state !== 'disconnected' && 'function' === typeof disconnect){
       disconnect()
-    exit(exitCode, signalCode)
+    }
+    if('function' === typeof exit){
+      exit(exitCode,signalCode)
+    }
   })
   return worker
 }

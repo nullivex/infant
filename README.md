@@ -505,6 +505,9 @@ $ DEBUG=infant* node app
 
 ## Changelog
 
+### 0.12.0
+* Upgraded to work with the latest node versions and be backwards compatible.
+
 ### 0.11.1
 * Kill child processes on timeout rather than term
 

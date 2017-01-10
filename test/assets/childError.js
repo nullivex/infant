@@ -11,7 +11,7 @@ child(
   'infant:test:child',
   //startup
   function(done){
-    done(new Error('bar'))
+    done(new Error('foo'))
   },
   //shutdown
   function(done){
