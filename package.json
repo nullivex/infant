@@ -21,19 +21,19 @@
     "node": ">=0.12.0"
   },
   "dependencies": {
-    "async": "1.5.x",
+    "async": "2.5.x",
     "callsite": "1.0.x",
-    "debug": "2.2.x",
+    "debug": "2.6.x",
     "node-sigint": "0.0.x",
     "object-manage": "0.8.x",
-    "q": "1.4.x"
+    "q": "1.5.x"
   },
   "scripts": {
     "test": "node ./node_modules/mocha/bin/mocha"
   },
   "devDependencies": {
-    "chai": "3.5.x",
-    "mocha": "2.4.x",
-    "request": "2.69.x"
+    "chai": "4.0.x",
+    "mocha": "3.4.x",
+    "request": "2.81.x"
   }
 }
