@@ -508,6 +508,7 @@ $ DEBUG=infant* node app
 
 ### 0.12.2
 * Update dependencies and tests to work with latest Node.js versions.
+* This release also drops testing support of Node.js < 4.x (however infant should still work!)
 
 ### 0.12.1
 * More bug fixes to make infant work across all major node versions.
