@@ -1,9 +1,9 @@
 {
-  "author": "SnailJS <developers@snailjs.org>",
+  "author": "NULLIVEX LLC <contact@nullivex.com>",
   "name": "infant",
   "description": "Child process, and cluster helper for Node.js",
-  "version": "0.12.1",
-  "homepage": "http://snailjs.org/",
+  "version": "0.12.2",
+  "homepage": "https://www.nullivex.com/",
   "repository": {
     "type": "git",
     "url": "https://github.com/snailjs/infant.git"
@@ -32,7 +32,7 @@
     "test": "node ./node_modules/mocha/bin/mocha"
   },
   "devDependencies": {
-    "chai": "4.0.x",
+    "chai": "4.1.x",
     "mocha": "3.4.x",
     "request": "2.81.x"
   }

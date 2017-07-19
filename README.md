@@ -506,6 +506,9 @@ $ DEBUG=infant* node app
 
 ## Changelog
 
+### 0.12.2
+* Update dependencies and tests to work with latest Node.js versions.
+
 ### 0.12.1
 * More bug fixes to make infant work across all major node versions.
 * Hold down timer added to respawn to prevent zombie processes stacking up.
