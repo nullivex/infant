@@ -3,7 +3,11 @@ var expect = require('chai').expect
 var request = require('request')
 
 var cluster = require('../helpers/Cluster')
+var parent = require('../helpers/Child').parent
 
+var getNodeVersion = function(){
+  return process.version.replace(/[a-z]+/gi,'').split('.')
+}
 
 describe('helpers/Cluster',function(){
   this.timeout(10000)
@@ -36,7 +40,8 @@ describe('helpers/Cluster',function(){
         inst.stop(function(err){
           done(err)
         })
-      } else done()
+      }
+      else done()
     })
     it('should start/stop',function(done){
       inst.start(function(err){
@@ -95,12 +100,13 @@ describe('helpers/Cluster',function(){
         })
       })
       it('should bubble complex errors properly',function(done){
-        inst.options.env = {ERROR: 'true'}
+        inst.options.$load({env: {ERROR: 'true'}})
         inst.start(function(err){
-          var majorVersion = process.version.replace('v','').substr(0,1)
+          var majorVersion = getNodeVersion()[0]
           if(majorVersion >= 6){
             expect(err).to.match(/Error: foo/)
-          } else {
+          }
+          else{
             expect(err).to.equal('[Error: foo]')
           }
           inst.options.env = {}
@@ -117,13 +123,18 @@ describe('helpers/Cluster',function(){
         })
       })
       it('should recycle worker after request ceiling',function(done){
+        let reqError = ''
         var makeRequest = function(){
           request('http://localhost:3333',function(err,res,body){
-            if(err) return done(err)
+            if(err){
+              console.log(err)
+              reqError = reqError + err
+              return
+            }
             expect(body).to.equal('foo')
           })
         }
-        inst.on('recycle',function(worker,connections){
+        inst.once('recycle',function(worker,connections){
           expect(worker).to.be.an('object')
           expect(connections).to.be.a('number')
           inst.once('online',function(worker){
@@ -133,10 +144,29 @@ describe('helpers/Cluster',function(){
         })
         inst.start(function(err){
           if(err) return done(err)
-          for(var i = 0; i<11; i++) makeRequest()
+          for(var i = 0; i < 11; i++) makeRequest()
+          setTimeout(function(){
+            if(reqError) done(reqError)
+          },1000)
         })
       })
-
+    })
+  })
+  describe('Cluster heartbeat',function(){
+    var inst
+    after(function(done){
+      inst.stop(function(err){
+        if(err) return done(err)
+        done()
+      })
+    })
+    it('should maintain heartbeat with the master',function(done){
+      inst = parent('assets/index',{fork: {env: {EXIT: 'true'}}})
+      inst.start(function(err){
+        //check for a heartbeat to show up
+        if('Worker has been orphaned' !== err) done(err)
+        else done()
+      })
     })
   })
 })

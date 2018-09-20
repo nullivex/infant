@@ -11,6 +11,11 @@ var infantUtil = require('./util')
 
 var instance
 
+var heartbeatInterval
+
+var getNodeVersion = function(){
+  return process.version.replace(/[a-z]+/gi,'').split('.')
+}
 
 /**
  * Emergency shutdown handler
@@ -46,6 +51,7 @@ var Cluster = function(module,options){
     enhanced: false,
     respawn: true,
     respawnDelay: 1000,
+    heartbeat: 1000,
     count: null,
     maxConnections: null,
     stopTimeout: null,
@@ -53,13 +59,18 @@ var Cluster = function(module,options){
     execArgv: null,
     silent: null,
     args: null,
-    env: {}
+    env: {
+      HEARTBEAT_INTERVAL: 1000
+    }
   })
   this.options.$load(options)
   //when we dont have enhanced mode, we need timeouts on stop
   if(!this.options.enhanced){
     if(!this.options.stopTimeout) this.options.stopTimeout = 5000
   }
+  this.options.env.HEARTBEAT_INTERVAL = this.options.heartbeat
+  //store pid of master
+  this.pid = process.pid
   //setup worker count based on options or system
   this.count = this.options.count || os.cpus().length
   //set our module
@@ -80,6 +91,13 @@ var Cluster = function(module,options){
   this.cluster.on('online',this.setupWorker.bind(this))
   //setup an exit handler to respawn workers
   this.cluster.on('exit',this.respawn.bind(this))
+  //setup a heartbeat to tell workers that communications are up
+  var that = this
+  var sendHeartbeat = function(){
+    that.send('hb:' + (+new Date()))
+  }
+  heartbeatInterval = setInterval(sendHeartbeat,this.options.heartbeat)
+  this.on('stop',function(){clearInterval(heartbeatInterval)})
 }
 Cluster.prototype = Object.create(EventEmitter.prototype)
 
@@ -104,7 +122,7 @@ Cluster.prototype.send = function(message){
   debug('sending message to workers',message)
   this.each(function(worker){
     try {
-      var majorVersion = +process.version.replace('v','').substr(0,1)
+      var majorVersion = getNodeVersion()[0]
       if(0 === majorVersion){
         worker.send('' + message)
       } else {
@@ -146,8 +164,19 @@ Cluster.prototype.setupWorker = function(worker){
   } else {
     that.emit('online',worker)
   }
+  //send an initial heartbeat as workers come up to activate the system
+  if(that.options.enhanced){
+    worker.send('hb:' + (+new Date()))
+  }
   //add a listener to sniff messages to count requests
   worker.on('message',function(msg){
+    //check for errors from workers
+    if('object' === typeof msg && 'error' === msg.status){
+      if(msg.message && 'Connection to master lost' === msg.message){
+        that.emit('orphan',worker.pid)
+      }
+      return
+    }
     //make sure this is a handoff
     if(!msg || 'request' !== msg) return
     //track overall requests served
@@ -221,6 +250,7 @@ Cluster.prototype.start = function(done){
   that.running = false
   var online = 0
   //handler initial workers coming online
+  var deferred = Q.defer()
   var workerStart = function(worker){
     debug('Worker ' + worker.process.pid + ' online')
     //in enhanced mode we wait for the worker to confirm its started
@@ -248,7 +278,6 @@ Cluster.prototype.start = function(done){
     }
   }
   //setup the promise to return
-  var deferred = Q.defer()
   deferred.promise.then(
     function(){
       debug('Cluster started')
@@ -282,7 +311,7 @@ Cluster.prototype.respawn = function(worker,code,signal){
   delete that.counters[worker.id]
   that.emit('exit',worker,code,signal)
   var workerSuicideFlag = 'suicide'
-  var majorVersion = process.version.replace('v','').substr(0,1)
+  var majorVersion = getNodeVersion()[0]
   if(majorVersion >= 6) workerSuicideFlag = 'exitedAfterDisconnect'
   if(
     false === worker[workerSuicideFlag] &&
@@ -369,7 +398,9 @@ Cluster.prototype.stop = function(done){
       debug('Stop timeout reached, killing system')
       if(interval) clearInterval(interval)
       that.kill('SIGKILL')
-      deferred.resolve()
+      setTimeout(function(){
+        deferred.resolve()
+      },2000)
     },that.options.stopTimeout)
   }
 }
@@ -395,6 +426,26 @@ Cluster.prototype.kill = function(signal){
 
     }
   })
+}
+
+
+/**
+ * Exit the master process immediately
+ * @param {number} code
+ */
+Cluster.prototype.exit = function(code){
+  code = code || 0
+  console.log('WARNING infant master told to exit NOW: ' + code)
+  process.exit(code)
+}
+
+
+/**
+ * Stop the heartbeat system from broadcasting
+ */
+Cluster.prototype.stopHeartbeat = function(){
+  console.log('WARNING stopped infant heartbeat system, worker death imminent')
+  clearInterval(heartbeatInterval)
 }
 
 
@@ -460,6 +511,19 @@ module.exports.setup = function(server,title,start,stop){
       process.exit()
     })
   }
+  var heartbeatInterval = process.env.HEARTBEAT_INTERVAL || 1000
+  var checkHeartbeat = function(){
+    //skip this check when the heartbeat value hasnt been defined
+    if(undefined === process._heartbeat) return
+    //otherwise we only allow the window to pass 4 times
+    var minStamp = +new Date() - (heartbeatInterval * 4)
+    if(process._heartbeat < minStamp){
+      console.log('WARNING infant worker lost connection to master, exiting!')
+      process.send({status: 'error', message: 'Connection to master lost'})
+      process.exit(0)
+    }
+  }
+  setInterval(checkHeartbeat,heartbeatInterval)
   debug('setting process title',title)
   process.title = title
   //if we are running as a child, setup handlers
@@ -491,6 +555,10 @@ module.exports.setup = function(server,title,start,stop){
     if('stop' === msg){
       debug('got stop, shutting down')
       doStop()
+    }
+    //intercept heartbeat messages
+    if(msg.match('hb:')){
+      process._heartbeat = +msg.replace(/\D+/ig,'')
     }
   })
   debug('executing start')

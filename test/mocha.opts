@@ -3,3 +3,4 @@
 -A
 ./test/*.test.js
 ./test/**/*.test.js
+--exit

@@ -2,6 +2,9 @@
 var expect = require('chai').expect
 var Child = require('../helpers/Child')
 
+var getNodeVersion = function(){
+  return process.version.replace(/[a-z]+/gi,'').split('.')
+}
 
 describe('helpers/Child',function(){
   this.timeout(10000)
@@ -146,7 +149,7 @@ describe('helpers/Child',function(){
     it('should handle complex errors',function(done){
       var child = Child.parent('./assets/childError',{respawn: false})
       child.start(function(err){
-        var majorVersion = process.version.replace('v','').substr(0,1)
+        var majorVersion = getNodeVersion()[0]
         if(majorVersion >= 6){
           expect(err).to.match(/Error: foo\n/)
         } else {
@@ -158,7 +161,7 @@ describe('helpers/Child',function(){
     it('should handle complex errors on once',function(done){
       var child = Child.fork('./assets/childOnceError')
       child.start(function(err){
-        var majorVersion = process.version.replace('v','').substr(0,1)
+        var majorVersion = getNodeVersion()[0]
         if(majorVersion >= 6){
           expect(err).to.match(/Error: baz\n/)
         } else {

@@ -1,12 +1,44 @@
 Infant [![Build Status](https://travis-ci.org/nullivex/infant.png?branch=master)](https://travis-ci.org/nullivex/infant)
 ============
 
+Start scaling your Node applications like the professionals do.
+
+## Quick Cluster
+
+`index.js`
+```js
+let infant = require('infant')
+let worker = infant.cluster('./worker')
+worker.start((err) => {
+  if(err){console.error(err);process.exit(1)}
+  console.log('Cluster started!')
+  worker.stop((err) => {
+   if(err){console.error(err);process.exit(1)}
+   console.log('Cluster stopped!')
+  })
+})
+```
+
+`worker.js`
+```js
+require('http').createServer((req,res) =>{res.end('Hello!')}).listen(3000)
+```
+
+Start the cluster
+
+`node index`
+
+Expected output
+
+`Cluster Started!`
+
+To stop the application from the foreground use "CTRL + C" infant handles all
+the other signaling from the OS.
+
+## What is Infant?
+
 Infant is a helper package that wraps some of the core node modules that are
 used to provide child process and cluster support.
-
-**NOTE** For Node 0.10.x use Infant 0.9.5
-
-**NOTE** For Node 0.12.0+ (including 5.x) use Infant 0.10+
 
 This package comes with two main helpers **Child**, **Cluster** which provide 
 enhanced functionality over the basic functionality that the core packages
@@ -505,6 +537,13 @@ $ DEBUG=infant* node app
 ```
 
 ## Changelog
+
+### 1.1.0
+* Update to latest dependencies
+* Update README to be more friendly
+* Fix bug with Node version recognition causing issues with Node 10
+* Add worker suicide when master communication is lost
+* More robust tests
 
 ### 1.0.0
 * Update dependencies and tests to work with latest Node.js versions.
