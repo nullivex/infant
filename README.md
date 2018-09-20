@@ -3,25 +3,38 @@ Infant [![Build Status](https://travis-ci.org/nullivex/infant.png?branch=master)
 
 Start scaling your Node applications like the professionals do.
 
-## Quick Cluster
+## Quick Clustered Application
 
+This takes two files, `index.js` is our entry point and `worker.js`
+contains the code for the application.
 `index.js`
 ```js
-let infant = require('infant')
-let worker = infant.cluster('./worker')
-worker.start((err) => {
-  if(err){console.error(err);process.exit(1)}
+var infant = require('infant').cluster
+var cluster = infant.cluster('./mychild',{count: 2, enhanced: true})
+var errorHandler = function(err){console.error(err); process.exit(1)}
+cluster.start(function(err){
+  if(err) return errorHandler(err)
   console.log('Cluster started!')
-  worker.stop((err) => {
-   if(err){console.error(err);process.exit(1)}
+  cluster.stop(function(err){
+   if(err) return erroHandler(err)
    console.log('Cluster stopped!')
   })
 })
 ```
-
 `worker.js`
 ```js
-require('http').createServer((req,res) =>{res.end('Hello!')}).listen(3000)
+var http = require('http')
+var worker = require('infant').worker
+var server = http.createServer(req,res){res.end('Hello!');})
+//setup the worker with advanced features
+if(require.main === module){
+  worker(server,
+    //start
+    function(done){server.listen(3000); process.nextTick(done)},
+    //stop
+    function(done){console.log('Stopped'); done()}
+  )
+}
 ```
 
 Start the cluster
@@ -537,6 +550,9 @@ $ DEBUG=infant* node app
 ```
 
 ## Changelog
+
+### 1.1.1
+* README example code updates.
 
 ### 1.1.0
 * Update to latest dependencies
