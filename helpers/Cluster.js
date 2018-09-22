@@ -206,7 +206,7 @@ Cluster.prototype.setupWorker = function(worker){
         that.emit('recycle',worker,that.counters[worker.id])
         //in enhanced mode tell the worker to stop
         if(that.options.enhanced){
-          //set a timeout to kill the worker so we dont bleed workers
+          //set a timeout to kill the worker so we do not bleed workers
           var killed = false
           var disconnectTimeout = setTimeout(function(){
             debug('worker ' + worker.process.pid + ' recycle timeout ' +
@@ -315,9 +315,9 @@ Cluster.prototype.respawn = function(worker,code,signal){
   if(majorVersion >= 6) workerSuicideFlag = 'exitedAfterDisconnect'
   if(
     false === worker[workerSuicideFlag] &&
-    !that.stopping &&
-    that.running &&
-    that.options.respawn
+    false === that.stopping &&
+    true === that.running &&
+    true === that.options.respawn
   ){
     debug('Worker ' + worker.process.pid +
     ' died (' + (signal || code) + ') and is respawn eligible, restarting')

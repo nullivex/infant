@@ -185,8 +185,8 @@ Child.prototype.stop = function(timeout,done){
     return done()
   }
   //mark that we are stopping to prevent respawns
-  that.status('stopping')
   that.stopping = true
+  that.status('stopping')
   //tell the child to stop gracefully
   that.cp.send('stop')
   //only wait a specific amount of time if specified
@@ -320,11 +320,9 @@ Child.child = function(title,start,stop){
   if(process.send){
     process.on('SIGTERM',function(){
       debug('ignored SIGTERM')
-      doStop()
     })
     process.on('SIGINT',function(){
       debug('ignored SIGINT')
-      doStop()
     })
     process.on('SIGHUP',function(){
       debug('got SIGHUP, gracefully exiting')

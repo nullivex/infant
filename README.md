@@ -551,6 +551,13 @@ $ DEBUG=infant* node app
 
 ## Changelog
 
+### 1.2.0
+* Critical signaling fix to Child.js that will handle shutdown properly
+by ignoring SIGINT and SIGTERM calls in children. SIGHUP will bring down
+children gracefully even without master saying so, however the master will
+probably spawn new children. Thus, this the SIGHUP feature is used for config
+reload.
+
 ### 1.1.1
 * README example code updates.
 
