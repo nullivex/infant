@@ -513,10 +513,10 @@ module.exports.setup = function(server,title,start,stop){
   }
   var heartbeatInterval = process.env.HEARTBEAT_INTERVAL || 1000
   var checkHeartbeat = function(){
-    //skip this check when the heartbeat value hasnt been defined
+    //skip this check when the heartbeat value has not been defined
     if(undefined === process._heartbeat) return
-    //otherwise we only allow the window to pass 4 times
-    var minStamp = +new Date() - (heartbeatInterval * 4)
+    //otherwise we only allow the window to pass 32 times
+    var minStamp = +new Date() - (heartbeatInterval * 32)
     if(process._heartbeat < minStamp){
       console.log('WARNING infant worker lost connection to master, exiting!')
       process.send({status: 'error', message: 'Connection to master lost'})

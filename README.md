@@ -25,7 +25,9 @@ cluster.start(function(err){
 ```js
 var http = require('http')
 var worker = require('infant').worker
-var server = http.createServer(req,res){res.end('Hello!');})
+var server = http.createServer((req,res)=>{
+  res.end('Hello!');
+})
 //setup the worker with advanced features
 if(require.main === module){
   worker(server,
@@ -195,7 +197,7 @@ master.start(function(err){
 'use strict';
 var http = require('http')
 
-var server = http.createServer(req,res){
+var server = http.createServer((req,res)=>{
   res.end('foo')
 })
 
@@ -234,7 +236,7 @@ master.start(function(err){
 var http = require('http')
 var worker = require('infant').worker
 
-var server = http.createServer(req,res){
+var server = http.createServer((req,res)=>{
   res.end('foo')
 })
 
@@ -550,6 +552,9 @@ $ DEBUG=infant* node app
 ```
 
 ## Changelog
+
+### 1.2.1
+* Increase heartbeat timeout 8 times to better handle high load.
 
 ### 1.2.0
 * Critical signaling fix to Child.js that will handle shutdown properly
