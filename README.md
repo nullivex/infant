@@ -553,6 +553,9 @@ $ DEBUG=infant* node app
 
 ## Changelog
 
+### 1.2.2
+* Add compatibility with the `nodemon` `SIGUSR2` shutdown signal.
+
 ### 1.2.1
 * Increase heartbeat timeout 8 times to better handle high load.
 

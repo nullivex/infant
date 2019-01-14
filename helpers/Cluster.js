@@ -541,6 +541,19 @@ module.exports.setup = function(server,title,start,stop){
   } else {
     //for single process handling
     require('node-sigint')
+    process.on('SIGUSR2', function(){
+      debug('got SIGUSR2')
+      stop(function(err){
+        if(err){
+          debug('stop failed',err)
+          if(process.send) process.send({status: 'error', message: err})
+          process.exit(1)
+          return
+        }
+        debug('stop complete')
+        process.kill(process.pid,'SIGUSR2')
+      })
+    })
     process.on('SIGTERM',function(){
       debug('got SIGTERM')
       doStop()
