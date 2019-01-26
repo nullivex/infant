@@ -553,6 +553,9 @@ $ DEBUG=infant* node app
 
 ## Changelog
 
+### 1.2.3
+* Fix small issue with nodemon integration and only listen for `SIGUSR2` once.
+
 ### 1.2.2
 * Add compatibility with the `nodemon` `SIGUSR2` shutdown signal.
 
