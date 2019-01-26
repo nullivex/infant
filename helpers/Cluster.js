@@ -256,7 +256,7 @@ Cluster.prototype.start = function(done){
     //in enhanced mode we wait for the worker to confirm its started
     if(that.options.enhanced){
       worker.once('message',function(msg){
-        debug('got message from ' + worker.process.pid,msg)
+        //debug('got message from ' + worker.process.pid,msg)
         if('started' === msg.status){
           debug('Worker ' + worker.process.pid + ' started')
           online++
