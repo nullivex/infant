@@ -2,7 +2,7 @@
   "author": "NULLIVEX LLC <contact@nullivex.com>",
   "name": "infant",
   "description": "Child process, and cluster helper for Node.js",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "homepage": "https://www.nullivex.com/",
   "repository": {
     "type": "git",

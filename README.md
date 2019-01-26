@@ -553,6 +553,10 @@ $ DEBUG=infant* node app
 
 ## Changelog
 
+### 1.2.4
+* Remove debug messaging on heartbeat messages to workers.
+* Remove SIGUSR2 handling, `nodemon` applications should use `--signal SIGINT`
+
 ### 1.2.3
 * Fix small issue with nodemon integration and only listen for `SIGUSR2` once.
 
