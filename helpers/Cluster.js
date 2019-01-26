@@ -119,7 +119,7 @@ Cluster.prototype.each = function(cb){
  * @param {*} message
  */
 Cluster.prototype.send = function(message){
-  debug('sending message to workers',message)
+  //debug('sending message to workers',message)
   this.each(function(worker){
     try {
       var majorVersion = getNodeVersion()[0]
