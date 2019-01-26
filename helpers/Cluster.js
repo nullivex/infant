@@ -564,7 +564,7 @@ module.exports.setup = function(server,title,start,stop){
     })
   }
   process.on('message',function(msg){
-    debug('got message',msg)
+    //debug('got message',msg)
     if('stop' === msg){
       debug('got stop, shutting down')
       doStop()
