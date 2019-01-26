@@ -499,7 +499,7 @@ module.exports.setup = function(server,title,start,stop){
     process.pid,
     require('debug')('infant:ClusterWorker')
   )
-  var doStop = function(){
+  var doStop = function(kill,signal){
     stop(function(err){
       if(err){
         debug('stop failed',err)
@@ -508,7 +508,8 @@ module.exports.setup = function(server,title,start,stop){
         return
       }
       debug('stop complete')
-      process.exit()
+      if(kill && signal) process.kill(process.pid,signal)
+      else process.exit()
     })
   }
   var heartbeatInterval = process.env.HEARTBEAT_INTERVAL || 1000
@@ -541,18 +542,9 @@ module.exports.setup = function(server,title,start,stop){
   } else {
     //for single process handling
     require('node-sigint')
-    process.once('SIGUSR2', function(){
+    process.on('SIGUSR2', function(){
       debug('got SIGUSR2')
-      stop(function(err){
-        if(err){
-          debug('stop failed',err)
-          if(process.send) process.send({status: 'error', message: err})
-          process.exit(1)
-          return
-        }
-        debug('stop complete')
-        process.kill(process.pid,'SIGUSR2')
-      })
+      doStop(true,'SIGUSR2')
     })
     process.on('SIGTERM',function(){
       debug('got SIGTERM')
