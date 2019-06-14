@@ -2,7 +2,7 @@
   "author": "NULLIVEX LLC <contact@nullivex.com>",
   "name": "infant",
   "description": "Child process, and cluster helper for Node.js",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "homepage": "https://www.nullivex.com/",
   "repository": {
     "type": "git",
@@ -22,7 +22,7 @@
     "node": ">=6"
   },
   "dependencies": {
-    "async": "2.6.x",
+    "async": "3.0.x",
     "callsite": "1.0.x",
     "debug": "4.1.x",
     "node-sigint": "0.0.x",
@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "chai": "4.2.x",
-    "mocha": "5.2.x",
+    "mocha": "6.1.x",
     "request": "2.88.x"
   }
 }

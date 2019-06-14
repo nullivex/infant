@@ -204,6 +204,7 @@ Cluster.prototype.setupWorker = function(worker){
         //old one
         //tell the old worker to shutdown gracefully
         that.emit('recycle',worker,that.counters[worker.id])
+        process.emit('SIGHUP')
         //in enhanced mode tell the worker to stop
         if(that.options.enhanced){
           //set a timeout to kill the worker so we do not bleed workers

@@ -540,7 +540,7 @@ stopped
 
 ## Debugging
 
-It is useful to see the interprocess communication for debugging and just
+It is useful to see the inter process communication for debugging and just
 overall feel that the system is working.
 
 This package is built using the https://www.npmjs.org/package/debug package.
@@ -552,6 +552,11 @@ $ DEBUG=infant* node app
 ```
 
 ## Changelog
+
+### 1.2.5
+* Worker recycle now emits SIGHUP to assist in gracefully shutting down overly
+ ripe workers.
+* Use latest dependencies.
 
 ### 1.2.4
 * Remove debug messaging on heartbeat messages to workers.
