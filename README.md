@@ -557,8 +557,8 @@ $ DEBUG=infant* node app
 ## Changelog
 
 ### 1.3.2
-* No long try to send error message about heartbeat failures over the process
-channel.
+* No longer try to send error message about heartbeat failures over the process
+channel when it has disappeared.
 * Improve wording of worker exit on heartbeat timeout.
 
 ### 1.3.1
