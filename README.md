@@ -412,11 +412,14 @@ defaults to `process.argv[1]`
 **Options**
 * `enhanced` - (boolean) default false, enable enhanced worker mode
 * `respawn` - (boolean) default true, enabled worker respawn on unexpected exit
-* `respawnDelay` - (number) default 1000, milliseconds before respawning a process
+* `respawnDelay` - (number) default 15000, milliseconds before respawning a process
 * `count` - (number) number of workers to start, defaults to `os.cpus().length`
 * `maxConnections` - (number) only available in enhanced mode, but will cause
 a worker to be shutdown and a new one started (recycled) when the worker
-achieves maxConnections.
+achieves maxConnections. The default value is 1000000.
+* `maxMemoryGain` - (number) a percent value 1-n that quantifies the amount of
+memory that can be gained since process startup before triggering a process
+recycle. The default value is 1000.
 * `stopTimeout` - (number) Timeout in `ms` to wait for workers to stop, defaults
 to no timeout when in enhanced mode, however it defaults to `5000` in normal
 mode.
@@ -553,9 +556,17 @@ $ DEBUG=infant* node app
 
 ## Changelog
 
-### 1.2.5
+### 1.3.0
 * Worker recycle now emits SIGHUP to assist in gracefully shutting down overly
  ripe workers.
+* Worker recycle can now be done by either memory usage limits, connection
+ limits or both. This will allow processes to restart less often when there is
+ no reason to issue a recycle. For memory hungry applications using a connection
+ limit will still make more sense. A combination approach is the default, which
+ will look for a resident to double its size from startup or reach 1,000,000
+ connections.
+* Decrease heartbeat frequency to 10 seconds over the previous value of 1 second.
+* Increase delay before restarting broken processes from 1 second to 15 seconds.
 * Use latest dependencies.
 
 ### 1.2.4

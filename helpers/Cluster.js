@@ -43,6 +43,7 @@ var Cluster = function(module,options){
   module = module || process.argv[1]
   //setup state
   this.counters = {}
+  this.workerMemory = {}
   this.requests = 0
   this.running = false
   this.stopping = false
@@ -50,17 +51,18 @@ var Cluster = function(module,options){
   this.options = new ObjectManage({
     enhanced: false,
     respawn: true,
-    respawnDelay: 1000,
-    heartbeat: 1000,
+    respawnDelay: 15000,
+    heartbeat: 10000,
     count: null,
-    maxConnections: null,
+    maxConnections: 1000000,
+    maxMemoryGain: 1000,
     stopTimeout: null,
     recycleTimeout: null,
     execArgv: null,
     silent: null,
     args: null,
     env: {
-      HEARTBEAT_INTERVAL: 1000
+      HEARTBEAT_INTERVAL: 10000
     }
   })
   this.options.$load(options)
@@ -185,11 +187,22 @@ Cluster.prototype.setupWorker = function(worker){
     that.counters[worker.id]++
     //debug('request counts updated',that.requests,that.counters[worker.id])
     //check if the worker is over the connection threshold, issue a shutdown
-    if(
-      that.options.maxConnections &&
-      that.counters[worker.id] >= that.options.maxConnections &&
-      !worker.recycling
-    ){
+    function isOverMaxConnections(){
+      return that.options.maxConnections &&
+        (that.counters[worker.id] >= that.options.maxConnections)
+    }
+    function isOverMemoryGain(){
+      var maxGain = that.options.maxMemoryGain
+      var usage = process.memoryUsage()
+      var start = that.workerMemory[worker.id]
+      var totalGain = Math.round(usage.heapTotal / start.heapTotal)
+      var usageGain = Math.round(usage.heapUsed / start.heapUsed)
+      return that.options.maxMemoryGain &&
+        (totalGain >= maxGain || usageGain >= maxGain)
+    }
+    var isOverConn = isOverMaxConnections()
+    var isOverMem = isOverMemoryGain()
+    if((isOverConn || isOverMem) && !worker.recycling){
       worker.recycling = true
       debug(
         'Worker ' + worker.process.pid + ' has reached its connection limit ' +
@@ -262,6 +275,8 @@ Cluster.prototype.start = function(done){
           debug('Worker ' + worker.process.pid + ' started')
           online++
           if(online >= that.count && !that.running){
+            //record memory value now that the worker is running
+            that.workerMemory[worker.id] = process.memoryUsage()
             deferred.resolve()
           }
         } else {
