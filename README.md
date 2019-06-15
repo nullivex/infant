@@ -556,6 +556,9 @@ $ DEBUG=infant* node app
 
 ## Changelog
 
+### 1.3.1
+* Fix bug in reference to worker memory not being defined before testing against.
+
 ### 1.3.0
 * Worker recycle now emits SIGHUP to assist in gracefully shutting down overly
  ripe workers.

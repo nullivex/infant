@@ -195,6 +195,7 @@ Cluster.prototype.setupWorker = function(worker){
       var maxGain = that.options.maxMemoryGain
       var usage = process.memoryUsage()
       var start = that.workerMemory[worker.id]
+      if(!start) return false
       var totalGain = Math.round(usage.heapTotal / start.heapTotal)
       var usageGain = Math.round(usage.heapUsed / start.heapUsed)
       return that.options.maxMemoryGain &&
