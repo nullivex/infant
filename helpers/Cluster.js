@@ -536,8 +536,7 @@ module.exports.setup = function(server,title,start,stop){
     //otherwise we only allow the window to pass 32 times
     var minStamp = +new Date() - (heartbeatInterval * 32)
     if(process._heartbeat < minStamp){
-      console.log('WARNING infant worker lost connection to master, exiting!')
-      process.send({status: 'error', message: 'Connection to master lost'})
+      console.log('ERROR infant worker heartbeat timeout, exiting!')
       process.exit(0)
     }
   }

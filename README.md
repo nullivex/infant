@@ -556,6 +556,11 @@ $ DEBUG=infant* node app
 
 ## Changelog
 
+### 1.3.2
+* No long try to send error message about heartbeat failures over the process
+channel.
+* Improve wording of worker exit on heartbeat timeout.
+
 ### 1.3.1
 * Fix bug in reference to worker memory not being defined before testing against.
 
