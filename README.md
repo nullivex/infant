@@ -1,7 +1,12 @@
 Infant [![Build Status](https://travis-ci.org/nullivex/infant.png?branch=master)](https://travis-ci.org/nullivex/infant)
 ============
 
-Start scaling your Node applications like the professionals do.
+## Kado
+
+STOP AND READ THIS
+
+A new package is available to handle all your JavaScript needs.
+See [kado.org](https://kado.org) for details.
 
 ## Quick Clustered Application
 
@@ -555,6 +560,12 @@ $ DEBUG=infant* node app
 ```
 
 ## Changelog
+
+### 1.3.3
+* Update the following dependencies
+  * async  3.0.x  →  3.2.x
+  * mocha  6.1.x  →  7.1.x
+* Add a notice about Kado to the readme.
 
 ### 1.3.2
 * No longer try to send error message about heartbeat failures over the process
