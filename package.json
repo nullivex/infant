@@ -2,14 +2,13 @@
   "author": "NULLIVEX LLC <contact@nullivex.com>",
   "name": "infant",
   "description": "Child process, and cluster helper for Node.js",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "homepage": "https://www.nullivex.com/",
   "repository": {
     "type": "git",
     "url": "https://github.com/snailjs/infant.git"
   },
   "license": "MIT",
-  "main": "app.js",
   "keywords": [
     "child process",
     "cluster",
@@ -24,7 +23,7 @@
   "dependencies": {
     "async": "3.2.x",
     "callsite": "1.0.x",
-    "debug": "4.1.x",
+    "debug": "4.3.x",
     "node-sigint": "0.0.x",
     "object-manage": "1.1.x",
     "q": "1.5.x"
@@ -33,8 +32,8 @@
     "test": "node ./node_modules/mocha/bin/mocha"
   },
   "devDependencies": {
-    "chai": "4.2.x",
-    "mocha": "7.1.x",
+    "chai": "4.3.x",
+    "mocha": "9.0.x",
     "request": "2.88.x"
   }
 }

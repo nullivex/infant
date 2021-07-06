@@ -561,6 +561,10 @@ $ DEBUG=infant* node app
 
 ## Changelog
 
+### 1.3.4
+* Latest dependencies.
+* Update package.json
+
 ### 1.3.3
 * Update the following dependencies
   * async  3.0.x  →  3.2.x
